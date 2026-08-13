@@ -1,0 +1,481 @@
+------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\\Users\\hermesf\\Projects\\Intragroup\\pricing_impact.log
+  log type:  text
+ opened on:  27 May 2026, 16:01:26
+
+. 
+. *** PRICING IMPACT
+. *** Chain activity and specialness in the EUR cleared segment.
+. *** Produces the six columns of the market-impact table.
+. 
+. clear all
+
+. 
+. * Import the data
+. import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\intra_cleared.csv", clear
+(encoding automatically selected: ISO-8859-1)
+(11 vars, 539,653 obs)
+
+. 
+. * Date and panel ids
+. gen date = date(business_date, "YMD")
+
+. format date %td
+
+. encode security_isin, gen(isin_id)
+
+. 
+. * Bond-by-month id for the saturated specification
+. gen month = mofd(date)
+
+. egen isin_month = group(isin_id month)
+
+. 
+. * (1) Chain only
+. reghdfe special intra_vol, absorb(isin_id date) vce(cluster isin_id)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   1,   1281) =      50.71
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5882
+                                                  Adj R-squared   =     0.5864
+                                                  Within R-sq.    =     0.0065
+Number of clusters (isin_id) =      1,282         Root MSE        =     9.9928
+
+                            (Std. err. adjusted for 1,282 clusters in isin_id)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+   intra_vol |   2.435984   .3420899     7.12   0.000     1.764866    3.107102
+       _cons |   4.681346   .0763049    61.35   0.000      4.53165    4.831043
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017           1        1016     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. summarize special if e(sample)
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+     special |    534,536    5.224705    15.53859      -56.3   383.9099
+
+. 
+. * (2) Hedge fund only
+. reghdfe special hf_vol, absorb(isin_id date) vce(cluster isin_id)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   1,   1281) =     102.14
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5906
+                                                  Adj R-squared   =     0.5888
+                                                  Within R-sq.    =     0.0122
+Number of clusters (isin_id) =      1,282         Root MSE        =     9.9640
+
+                            (Std. err. adjusted for 1,282 clusters in isin_id)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      hf_vol |   3.715002   .3675942    10.11   0.000     2.993849    4.436154
+       _cons |   4.357908   .0857683    50.81   0.000     4.189647     4.52617
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017           1        1016     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. * (3) Chain and hedge fund
+. reghdfe special intra_vol hf_vol, absorb(isin_id date) vce(cluster isin_id)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   2,   1281) =      68.29
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5921
+                                                  Adj R-squared   =     0.5903
+                                                  Within R-sq.    =     0.0158
+Number of clusters (isin_id) =      1,282         Root MSE        =     9.9457
+
+                            (Std. err. adjusted for 1,282 clusters in isin_id)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+   intra_vol |   1.856234   .3361165     5.52   0.000     1.196835    2.515633
+      hf_vol |   3.314127    .352625     9.40   0.000     2.622341    4.005913
+       _cons |   4.037399   .1030381    39.18   0.000     3.835257    4.239541
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017           1        1016     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. * (4) Add the unlinked intragroup placebo
+. reghdfe special intra_vol intra_vol_unlinked hf_vol, absorb(isin_id date) vce(cluster isin_id)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   3,   1281) =      51.41
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5921
+                                                  Adj R-squared   =     0.5904
+                                                  Within R-sq.    =     0.0159
+Number of clusters (isin_id) =      1,282         Root MSE        =     9.9453
+
+                                  (Std. err. adjusted for 1,282 clusters in isin_id)
+------------------------------------------------------------------------------------
+                   |               Robust
+           special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+         intra_vol |   1.834065   .3439504     5.33   0.000     1.159298    2.508833
+intra_vol_unlinked |  -.4029369   .3162008    -1.27   0.203    -1.023265    .2173914
+            hf_vol |   3.317295   .3529961     9.40   0.000     2.624781    4.009809
+             _cons |   4.129528   .1417758    29.13   0.000     3.851389    4.407666
+------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017           1        1016     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. * (5) Add the bank benchmark, a generic cleared-activity control
+. reghdfe special intra_vol intra_vol_unlinked hf_vol bank_bench, absorb(isin_id date) vce(cluster isin_id)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   4,   1281) =      42.45
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5924
+                                                  Adj R-squared   =     0.5907
+                                                  Within R-sq.    =     0.0167
+Number of clusters (isin_id) =      1,282         Root MSE        =     9.9412
+
+                                  (Std. err. adjusted for 1,282 clusters in isin_id)
+------------------------------------------------------------------------------------
+                   |               Robust
+           special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+         intra_vol |    1.82581   .3431692     5.32   0.000     1.152575    2.499046
+intra_vol_unlinked |  -.4622238   .3107156    -1.49   0.137    -1.071791    .1473436
+            hf_vol |   3.175927   .3549174     8.95   0.000     2.479644     3.87221
+        bank_bench |   .3909622   .1031488     3.79   0.000     .1886031    .5933214
+             _cons |   3.620687   .1877642    19.28   0.000     3.252328    3.989046
+------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017           1        1016     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. * (6) Same specification with bond-by-month and date fixed effects
+. reghdfe special intra_vol intra_vol_unlinked hf_vol bank_bench, absorb(isin_month date) vce(cluster isin_id)
+(dropped 752 singleton observations)
+(MWFE estimator converged in 6 iterations)
+
+HDFE Linear regression                            Number of obs   =    533,795
+Absorbing 2 HDFE groups                           F(   4,   1281) =      13.29
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.8376
+                                                  Adj R-squared   =     0.8290
+                                                  Within R-sq.    =     0.0012
+Number of clusters (isin_id) =      1,282         Root MSE        =     6.4232
+
+                                  (Std. err. adjusted for 1,282 clusters in isin_id)
+------------------------------------------------------------------------------------
+                   |               Robust
+           special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+         intra_vol |   .4634631   .1176447     3.94   0.000     .2326656    .6942605
+intra_vol_unlinked |   .1561921   .1222576     1.28   0.202    -.0836549    .3960392
+            hf_vol |   1.353415   .2742129     4.94   0.000     .8154598    1.891371
+        bank_bench |   .2336782   .0630931     3.70   0.000      .109901    .3574554
+             _cons |   4.450683   .1316641    33.80   0.000     4.192382    4.708984
+------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+  isin_month |     26033       26033           0    *|
+        date |      1016           1        1015     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. * Does the chain price more per billion than generic cleared demand?
+. test intra_vol = bank_bench
+
+ ( 1)  intra_vol - bank_bench = 0
+
+       F(  1,  1281) =    3.44
+            Prob > F =    0.0638
+
+. 
+. 
+. *** ===== CLEARED-MATCHED SPECIFICATION (appended) =====
+. * Chain and HF regressors are the cleared-matched gross volumes from Section 4.1
+. * (Chain^in and its direct analog), so the construction runs through to pricing.
+. * intra_m is the matched chain volume, hf_m the matched direct HF volume,
+. * unlinked_m the intragroup residual. bank_bench is unchanged. Uses
+. * intra_cleared_matched.csv from market_impact.ipynb.
+. 
+. import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\intra_cleared_matched.csv", clear
+(encoding automatically selected: ISO-8859-2)
+(14 vars, 539,653 obs)
+
+. gen date = date(business_date, "YMD")
+
+. format date %td
+
+. encode security_isin, gen(isin_id)
+
+. gen month = mofd(date)
+
+. egen isin_month = group(isin_id month)
+
+. 
+. reghdfe special intra_m, absorb(isin_id date) vce(cluster isin_id date)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+Warning: VCV matrix was non-positive semi-definite; adjustment from Cameron, Gelbach & Miller applied.
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   1,   1016) =      66.68
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5878
+                                                  Adj R-squared   =     0.5860
+Number of clusters (isin_id) =      1,282         Within R-sq.    =     0.0056
+Number of clusters (date)    =      1,017         Root MSE        =     9.9974
+
+                       (Std. err. adjusted for 1,017 clusters in isin_id date)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+     intra_m |   4.057463    .496899     8.17   0.000     3.082397    5.032529
+       _cons |   4.711623   .0624023    75.50   0.000      4.58917    4.834075
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017        1017           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. reghdfe special hf_m, absorb(isin_id date) vce(cluster isin_id date)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+Warning: VCV matrix was non-positive semi-definite; adjustment from Cameron, Gelbach & Miller applied.
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   1,   1016) =      45.09
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5871
+                                                  Adj R-squared   =     0.5853
+Number of clusters (isin_id) =      1,282         Within R-sq.    =     0.0037
+Number of clusters (date)    =      1,017         Root MSE        =    10.0067
+
+                       (Std. err. adjusted for 1,017 clusters in isin_id date)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        hf_m |   3.109851   .4631413     6.71   0.000     2.201029    4.018674
+       _cons |   4.756904   .0692709    68.67   0.000     4.620973    4.892834
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017        1017           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. reghdfe special intra_m hf_m, absorb(isin_id date) vce(cluster isin_id date)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+Warning: VCV matrix was non-positive semi-definite; adjustment from Cameron, Gelbach & Miller applied.
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   2,   1016) =      44.27
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5888
+                                                  Adj R-squared   =     0.5871
+Number of clusters (isin_id) =      1,282         Within R-sq.    =     0.0080
+Number of clusters (date)    =      1,017         Root MSE        =     9.9850
+
+                       (Std. err. adjusted for 1,017 clusters in isin_id date)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+     intra_m |   3.617943   .5038592     7.18   0.000     2.629219    4.606667
+        hf_m |    2.56355   .4523064     5.67   0.000     1.675988    3.451111
+       _cons |   4.381578    .090106    48.63   0.000     4.204763    4.558393
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017        1017           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. reghdfe special intra_m unlinked_m hf_m, absorb(isin_id date) vce(cluster isin_id date)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+Warning: VCV matrix was non-positive semi-definite; adjustment from Cameron, Gelbach & Miller applied.
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   3,   1016) =      31.92
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5889
+                                                  Adj R-squared   =     0.5872
+Number of clusters (isin_id) =      1,282         Within R-sq.    =     0.0082
+Number of clusters (date)    =      1,017         Root MSE        =     9.9839
+
+                       (Std. err. adjusted for 1,017 clusters in isin_id date)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+     intra_m |   3.458798   .4613992     7.50   0.000     2.553394    4.364203
+  unlinked_m |   .4963758   .4262232     1.16   0.244    -.3400026    1.332754
+        hf_m |   2.544509   .4513898     5.64   0.000     1.658746    3.430271
+       _cons |   4.248305   .1657844    25.63   0.000     3.922986    4.573624
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017        1017           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. reghdfe special intra_m unlinked_m hf_m bank_bench, absorb(isin_id date) vce(cluster isin_id date)
+(dropped 11 singleton observations)
+(MWFE estimator converged in 8 iterations)
+Warning: VCV matrix was non-positive semi-definite; adjustment from Cameron, Gelbach & Miller applied.
+
+HDFE Linear regression                            Number of obs   =    534,536
+Absorbing 2 HDFE groups                           F(   4,   1016) =      25.63
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5894
+                                                  Adj R-squared   =     0.5877
+Number of clusters (isin_id) =      1,282         Within R-sq.    =     0.0094
+Number of clusters (date)    =      1,017         Root MSE        =     9.9779
+
+                       (Std. err. adjusted for 1,017 clusters in isin_id date)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+     intra_m |    3.41501   .4637814     7.36   0.000     2.504931    4.325089
+  unlinked_m |   .4608271   .4218337     1.09   0.275    -.3669378    1.288592
+        hf_m |   2.328166    .455376     5.11   0.000     1.434581    3.221751
+  bank_bench |   .4729992   .1092458     4.33   0.000      .258626    .6873725
+       _cons |   3.624179   .2209488    16.40   0.000     3.190611    4.057747
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+     isin_id |      1282        1282           0    *|
+        date |      1017        1017           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. reghdfe special intra_m unlinked_m hf_m bank_bench, absorb(isin_month date) vce(cluster isin_id date)
+(dropped 752 singleton observations)
+(MWFE estimator converged in 6 iterations)
+Warning: VCV matrix was non-positive semi-definite; adjustment from Cameron, Gelbach & Miller applied.
+
+HDFE Linear regression                            Number of obs   =    533,795
+Absorbing 2 HDFE groups                           F(   4,   1015) =       7.47
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.8375
+                                                  Adj R-squared   =     0.8289
+Number of clusters (isin_id) =      1,282         Within R-sq.    =     0.0006
+Number of clusters (date)    =      1,016         Root MSE        =     6.4251
+
+                       (Std. err. adjusted for 1,016 clusters in isin_id date)
+------------------------------------------------------------------------------
+             |               Robust
+     special | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+     intra_m |   .9681416   .2135091     4.53   0.000     .5491718    1.387111
+  unlinked_m |   .0843694   .1188799     0.71   0.478    -.1489092    .3176479
+        hf_m |   .8836921   .3163131     2.79   0.005     .2629896    1.504395
+  bank_bench |   .2452329   .0821897     2.98   0.003     .0839517    .4065142
+       _cons |    4.60568   .1540118    29.90   0.000     4.303462    4.907898
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+  isin_month |     26033       26033           0    *|
+        date |      1016        1016           0    *|
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\\Users\\hermesf\\Projects\\Intragroup\\pricing_impact.log
+  log type:  text
+ closed on:  27 May 2026, 16:02:12
+------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,180 @@
+--------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\\Users\\hermesf\\Projects\\Intragroup\\passthrough.log
+  log type:  text
+ opened on:  27 May 2026, 13:58:25
+
+. *** PASS-THROUGH REGRESSIONS
+. *** Within-entity, within-security co-movement of the intragroup leg and the
+. *** matched external leg. Shows the intermediating entity passes flow through
+. *** rather than holding it. EUR is the intragroup-to-CCP leg for euro area
+. *** subsidiaries of foreign groups. USD is the hedge-fund-to-intragroup leg for
+. *** UK branches of euro area groups. Entity-by-security and date fixed effects,
+. *** so identification is time variation within a given entity and bond.
+. *** Standard errors clustered by bond.
+. 
+. clear all
+
+. 
+. *** EUR, intragroup volume on cleared (CCP) volume
+. import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\pt_eur.csv", clear
+(encoding automatically selected: ISO-8859-2)
+(7 vars, 4,474,303 obs)
+
+. gen date = date(business_date, "YMD")
+
+. format date %td
+
+. encode security_isin, gen(bond)
+
+. egen ent_bond = group(entity_id security_isin)
+
+. 
+. * gross volume co-movement
+. reghdfe intra_vol cleared_vol, absorb(ent_bond date) vce(cluster bond)
+(dropped 311 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =  4,473,992
+Absorbing 2 HDFE groups                           F(   1,   2008) =     387.49
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.4837
+                                                  Adj R-squared   =     0.4818
+                                                  Within R-sq.    =     0.0777
+Number of clusters (bond)    =      2,009         Root MSE        =     0.1474
+
+                               (Std. err. adjusted for 2,009 clusters in bond)
+------------------------------------------------------------------------------
+             |               Robust
+   intra_vol | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ cleared_vol |   .2883104   .0146464    19.68   0.000     .2595866    .3170342
+       _cons |   .0470134   .0014233    33.03   0.000     .0442221    .0498047
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+    ent_bond |     15456       15456           0    *|
+        date |      1026           1        1025     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. * net positions, a slope near minus one means the entity offsets its external position
+. reghdfe intra_net cleared_net, absorb(ent_bond date) vce(cluster bond)
+(dropped 311 singleton observations)
+(MWFE estimator converged in 7 iterations)
+
+HDFE Linear regression                            Number of obs   =  4,473,992
+Absorbing 2 HDFE groups                           F(   1,   2008) =     628.44
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.4127
+                                                  Adj R-squared   =     0.4106
+                                                  Within R-sq.    =     0.1052
+Number of clusters (bond)    =      2,009         Root MSE        =     0.1509
+
+                               (Std. err. adjusted for 2,009 clusters in bond)
+------------------------------------------------------------------------------
+             |               Robust
+   intra_net | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ cleared_net |  -.3412622   .0136131   -25.07   0.000    -.3679594   -.3145649
+       _cons |  -.0073107   .0000687  -106.37   0.000    -.0074455    -.007176
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+    ent_bond |     15456       15456           0    *|
+        date |      1026           1        1025     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. 
+. *** USD, intragroup volume on hedge fund volume
+. import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\pt_usd.csv", clear
+(encoding automatically selected: UTF-8)
+(7 vars, 387,886 obs)
+
+. gen date = date(business_date, "YMD")
+
+. format date %td
+
+. encode security_isin, gen(bond)
+
+. egen ent_bond = group(entity_id security_isin)
+
+. 
+. reghdfe intra_vol hf_vol, absorb(ent_bond date) vce(cluster bond)
+(dropped 15 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    387,871
+Absorbing 2 HDFE groups                           F(   1,   1059) =    1087.40
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.7644
+                                                  Adj R-squared   =     0.7628
+                                                  Within R-sq.    =     0.6279
+Number of clusters (bond)    =      1,060         Root MSE        =     0.4435
+
+                               (Std. err. adjusted for 1,060 clusters in bond)
+------------------------------------------------------------------------------
+             |               Robust
+   intra_vol | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      hf_vol |   1.052816    .031927    32.98   0.000     .9901686    1.115463
+       _cons |   .1393375   .0084003    16.59   0.000     .1228544    .1558206
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+    ent_bond |      1626        1626           0    *|
+        date |       932           1         931     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. reghdfe intra_net if_net, absorb(ent_bond date) vce(cluster bond)
+(dropped 15 singleton observations)
+(MWFE estimator converged in 8 iterations)
+
+HDFE Linear regression                            Number of obs   =    387,871
+Absorbing 2 HDFE groups                           F(   1,   1059) =    1005.81
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.5467
+                                                  Adj R-squared   =     0.5437
+                                                  Within R-sq.    =     0.3993
+Number of clusters (bond)    =      1,060         Root MSE        =     0.3723
+
+                               (Std. err. adjusted for 1,060 clusters in bond)
+------------------------------------------------------------------------------
+             |               Robust
+   intra_net | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      if_net |  -.7522361    .023719   -31.71   0.000    -.7987777   -.7056944
+       _cons |  -.0749584   .0015748   -47.60   0.000    -.0780485   -.0718684
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+    ent_bond |      1626        1626           0    *|
+        date |       932           1         931     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\\Users\\hermesf\\Projects\\Intragroup\\passthrough.log
+  log type:  text
+ closed on:  27 May 2026, 14:00:08
+--------------------------------------------------------------------------------------------------------------------------------------

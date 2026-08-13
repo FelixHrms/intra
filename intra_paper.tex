@@ -1,0 +1,714 @@
+\documentclass[english, 11pt, oneside, legal]{article}
+
+% Page geometry and layout
+\usepackage[
+	left=1.25in,
+	right=1.25in,
+	top=1.25in,
+	bottom=1.25in,
+	head=0pt
+]{geometry}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{multicol}
+\usepackage{multirow}
+
+% Math packages
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Text and language
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{csquotes}
+\usepackage{soul}
+
+% Bibliography
+\usepackage[authoryear,longnamesfirst]{natbib}
+
+% Tables and figures
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{dcolumn}
+\usepackage{longtable}
+\usepackage{rotating}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+% Colors and styling
+\usepackage{color, colortbl}
+\usepackage{yfonts}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{ulem}
+
+% Misc functionality
+\usepackage{comment}
+\usepackage{lscape}
+\usepackage{pdflscape}
+\usepackage{changepage}
+\usepackage{lipsum}
+\usepackage{enumitem}
+\setlist[itemize]{
+    topsep=0.5\baselineskip,    % default is ~\baselineskip
+    partopsep=0pt,
+    itemsep=0.2\baselineskip,   % try 0pt if you want no gap at all
+    parsep=0pt
+}
+\usepackage{siunitx}
+\usepackage{eurosym}
+\usepackage{textcomp}
+\usepackage[toc]{appendix}
+\usepackage{pifont}
+\usepackage{microtype}
+
+% Load hyperref last
+\usepackage[hyperfootnotes=true, urlcolor=darkred]{hyperref}
+
+% Colors
+\definecolor{darkred}{rgb}{0.6,0.0,0.0}
+\definecolor{orange}{rgb}{1,0.5,0}
+\definecolor{Gray}{gray}{0.9}
+\definecolor{darkgreen}{rgb}{0.0, 0.5, 0.0}
+
+% Hyperref setup
+\hypersetup{
+	colorlinks   = true,
+	allcolors    = blue,
+	pdfstartview = {FitV},
+	pdfpagemode  = {UseNone},
+	pdfnewwindow = true
+}
+% Custom column types
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{g}{>{\columncolor{Gray}\centering\arraybackslash}X}
+\newcolumntype{d}[1]{D{.}{.}{#1}}
+\newcolumntype{.}{D{.}{.}{-1}}
+
+
+% Counter settings
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\thetable}{\Roman{table}}
+
+% Custom commands
+\newcommand{\cs}[1]{{\color{blue}\bf CS: #1}}
+\newcommand{\ltab}{\raggedright\arraybackslash}
+\newcommand{\ctab}{\centering\arraybackslash}
+\newcommand{\rtab}{\raggedleft\arraybackslash}
+\newcommand{\Qmeas}{\mathbb{Q}}
+\newcommand{\Pmeas}{\mathbb{P}}
+\newcommand{\brac}[1]{\left ( #1 \right )}
+\newcommand{\brak}[1]{\left [ #1 \right ]}
+\newcommand{\brat}[1]{\left \{ #1 \right \}}
+\newcommand{\evt}[2]{\mathbb{E}^{\Pmeas}_{#1}\brak{#2}}
+\newcommand{\evqt}[2]{\mathbb{E}^{\Qmeas}_{#1}\brak{#2}}
+\newcommand{\ev}[2]{\mathbb{E}_{#1}\brak{#2}}
+\newcommand{\rev}[1]{\textcolor{orange}{\textbf{\emph{#1}}}}
+\newcommand{\MS}[1]{\textcolor{orange}{\textbf{\tt{#1}}}}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\beqno}{\begin{equation*}}
+\newcommand{\eeqno}{\end{equation*}}
+\newcommand{\mbb}{\mathbb}
+\newcommand{\mca}{\mathcal}
+\newcommand{\msc}{\mathscr}
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+\newcommand{\bit}{\begin{itemize}}
+\newcommand{\eit}{\end{itemize}}
+\newcommand{\beqn}{\begin{eqnarray}}
+\newcommand{\eeqn}{\end{eqnarray}}
+\newcommand{\nono}{\nonumber}
+\newcommand{\beqnn}{\begin{eqnarray*}}
+\newcommand{\eeqnn}{\end{eqnarray*}}
+\newcommand{\lvs}{\vspace{0.4cm}}
+\newcommand{\svs}{\vspace{0.2cm}}
+\newcommand{\mbbe}{\mathbb{E}}
+\newcommand{\mbbv}{\mathbb{V}}
+\newcommand{\mbbcv}{\mathbb{CV}}
+\newcommand{\mc}{\multicolumn}
+\newcommand{\mrev}[1]{\textcolor{darkred}{{\textsf{#1}}}}
+\newcommand{\mgreen}[1]{\textcolor{darkgreen}{{\textsf{#1}}}}
+\newcommand{\mscom}[1]{\colorbox{yellow}{\scriptsize{{[MS}: #1\textbf{]}}}}
+\newcommand{\mutlicomment}[1]{}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
+
+
+
+
+\begin{document}
+\pagenumbering{gobble}
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\vspace*{0.5in}
+
+\noindent{\large\bf{Internal Securities Markets}}
+
+\vspace{0.2in}
+
+\noindent
+George Angelis Alexiou\footnote{Goethe University Frankfurt; \href{mailto:AngelisAlexiou@econ.uni-frankfurt.de}{AngelisAlexiou@econ.uni-frankfurt.de}}, 
+Felix Hermes\footnote{Goethe University Frankfurt; \href{mailto:hermes@finance.uni-frankfurt.de}{hermes@finance.uni-frankfurt.de}}, 
+Benoit Nguyen\footnote{European Central Bank; \href{mailto:benoit.nguyen@ecb.europa.eu}{benoit.nguyen@ecb.europa.eu}}, and
+Davide Tomio\footnote{Texas A\&M University, Mays Business School; CEPR; \href{mailto:tomio@tamu.edu}{tomio@tamu.edu}\\ Disclaimer: This paper should not be reported as representing the views of the European Central Bank (ECB). The views expressed are those of the authors and do not necessarily reflect those of the ECB.}.
+
+\vspace{0.25in}
+\noindent This draft: \today \\
+
+\vspace{0.25in}
+{\noindent
+{\bf Abstract}
+\singlespacing
+\small
+\noindent This paper provides evidence that global banking groups use their internal market to facilitate the access of non-banks to foreign centrally cleared repo markets. Using exhaustive repo transaction-level data, we provide evidence that intragroup repos, a market up to 20\% as large as the entire repo market, operate as the middle leg of an intermediation chain in which non-bank investors transact with an affiliate of a banking group, which in turn sources or places the corresponding collateral and cash in the centrally cleared market through a second affiliate in another jurisdiction. The geography of intragroup activity retraces this cross-border circulation of collateral and currencies. Intragroup repo is predominantly cross-border, and the currency of activity is separated from the nationality of the group conducting it. Foreign banking groups dominate intragroup activity in euros, while euro area groups dominate it in dollars. This hidden indirect non-bank demand is associated with pricing in the cleared repo market segment, where bonds linked to the intragroup chain trade more special, implying that the footprint of non-banks on euro area repo pricing is larger than direct activity alone would suggest.
+
+\vspace{0.5in}
+
+\noindent{\bf JEL Classification Codes:} G15, G21, G23.
+
+\vspace{0.25in}
+
+\noindent{\bf Keywords:} Intragroup repo, Specialness, Non-bank financial intermediation, Cross-border banking.
+}
+
+\setcounter{footnote}{0}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{equation}{0}
+\newpage 
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\bigskipamount}
+
+\pagenumbering{arabic}
+\renewcommand{\refname}{References}
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+\onehalfspacing
+
+
+\section{Introduction}
+\label{sec:intro}
+
+The internal networks of global banks are central to the functioning of cross-border markets. A large literature studies how banking groups use internal capital markets to move liquidity between affiliates, in particular to fund dollar activity outside the United States \citep{cetorelli2012, aldasoro2022}. Much of this internal activity takes place in secured markets where the cash flows are collateralized, yet this collateral dimension has received considerably less attention. This paper focuses on the \textit{internal} markets that global banks use to move collateral across affiliates, and on how these transactions serve a purpose to connect different segments and market players of the \textit{external} market.
+
+Two segments of the external market are particularly relevant for the circulation of collateral within global banking groups. On one side, non-bank financial institutions---particularly hedge funds---have become large players in sovereign bond and repo markets, often as part of leveraged strategies such as the Treasury basis trade \citep{barth2025, pelizzon2025, kruttli2025}. These investors generate substantial demand for specific securities. On the other side, the cleared repo segment offers broad access to cash and general government bond collateral. The two segments do not connect directly. Non-banks are seldom clearing members and can only access the cleared segment through a clearing member. Further, non-banks typically maintain clearing relations with dealers in its home jurisdiction, limiting their ability to access securities from other jurisdictions through their standard trading partners. Bridging the two segments therefore calls for an intermediary that is itself active in the foreign cleared market.
+
+Intragroup repos provide a natural way to bridge this gap. Consider a hedge fund that wants to short a euro area government bond but whose dealer is in the UK. The UK dealer might not be a member of the euro area cleared segment and cannot source the bond there directly. Its euro-area affiliate, however, can. Once the bond has been obtained in the cleared market by the euro-area affiliate, it is passed to the UK affiliate through an intragroup repo and delivered to the hedge fund against cash. The banking group as a whole intermediates between the non bank and the cleared segment, but the trade is split across affiliates in different jurisdictions.
+
+We provide the first characterization of cross-border intragroup repos, a segment previously unreported, but up to 20\% as large as the entirety of the repo market using transaction-level data from the Securities Financing Transactions Data Store (SFTDS). This regulatory dataset covers all securities financing transactions involving at least one euro area established entity. Two features of the data are central to the analysis. First, the dataset includes transactions between affiliates of the same banking group, which are excluded from both commercial datasets and earlier regulatory dataset used in much of the existing euro area repo literature. Second, it includes both euro and foreign-denominated activities, allowing us to characterize the USD-denominated repo market alongside the EUR-denominated one. This currency coverage allows us to show that intragroup repos are used for the same securities-sourcing purpose by both European and American banks. 
+
+We show that intragroup repos act as a bridge that connects non-bank investors to the cleared segment. Intragroups sit as the middle ring of an intermediation chain that runs from non-bank borrowers, through internal affiliates of banking groups, to the centrally cleared market. %The regulatory coverage implies that the data allow us to observe only one side of this chain in each currency. In EUR, the data cover euro area subsidiaries on the intragroup to cleared leg, but not the hedge fund leg booked at their foreign affiliates. In USD, the data cover UK branches of euro area banks on the hedge fund to intragroup leg, but not the corresponding US leg in the cleared segment. We argue that these are best read as two parts of the same chain, which we however cannot observe in full.
+The chain interpretation is supported by two pieces of evidence. First, the directionality of UK affiliate flows aligns with what we would expect if these entities were intermediating hedge fund activity. In USD, UK affiliates are consistently net borrowers of dollar cash and US affiliates net lenders, consistent with hedge funds going long Treasuries and financing the position through repo. In EUR, the signs reverse, with UK affiliates as net lenders of euro cash and euro area affiliates as net borrowers, consistent with hedge funds shorting euro area government bonds and obtaining the securities through repo. Second, bonds that move through the EUR intragroup chain are also disproportionately likely to appear in direct repo transactions between euro area banks and Cayman domiciled investment funds on the same day. 
+
+Intragroup repos affect the pricing in the cleared segment. Bonds sourced through the intragroup chain to satisfy hedge fund demand are removed from the pool of collateral available to other participants, and the resulting reduction in net supply would push the bond to trade more special. Consistent with this mechanism, chain linked intragroup borrowing is associated with 3.6 basis points more specialness in the EUR cleared segment per billion euros of volume, in addition to the 2.6 basis points associated with directly observable hedge fund transactions. Intragroup activity not linked to final hedge funds' demand has no measurable association with specialness, consistent with the chain mechanism rather than a generic feature of intragroup repos. Taken together, the chain channel and the direct hedge fund channel explain roughly 16\% of average specialness in the cleared segment, of which more than half operates through the chain channel that is invisible without intragroup data.
+
+The findings have implications for the measurement of non bank activity in repo markets and for the surveillance of cross border banking. Approaches that rely on directly observed bank to hedge fund transactions capture the direct channel but miss the channel that runs through intragroup chains. The internal reallocation of cash and collateral between affiliates in different jurisdictions is not just a feature of how banks manage their own balance sheets. It is also the route through which non bank demand reaches the cleared market, and a potential channel for shocks at either end of the chain to propagate to the other.
+
+Our paper relates to four strands of the literature. First, to the literature on internal capital markets and global banking. This strand shows that organizations reallocate resources internally across their units, both in non-financial firms \citep{stein1997} and in financial conglomerates, where internal capital markets insulate lending from external funding shocks \citep{campello2002} and let multinational groups support their foreign subsidiaries through internal lending \citep{deHaas2010}. For global banks in particular, these internal markets operate across borders and currencies. \citet{cetorelli2012} show that US global banks draw on internal funding to smooth liquidity shocks during the Great Recession, \citet{cetorelli2012a} and \citet{cetorelli2011} document that the same internal networks transmit shocks across jurisdictions, and \citet{brunoshin2015} link cross-border bank flows to the global supply of liquidity. 
+
+A closely related literature emphasizes the dollar dimension of this activity, studying how global banks fund dollar positions outside the United States and how this funding interacts with regulation \citep{aldasoro2022, lu2024}, while \citet{reinhardt2015} show that intragroup funding behaves differently from arm's-length cross-border flows. Internal reallocation is also shaped by regulatory incentives, including regulatory arbitrage across jurisdictions \citep{houston2012}, and the resulting flows leave a distinctive geographic footprint on banks' international operations \citep{hardy2024}. We contribute to this literature by shifting attention from the funding dimension of internal capital markets to their collateral dimension. We show that global banks use internal markets to move securities, not just cash, across affiliates in different jurisdictions. These internal securities flows are not self-contained but connect external market segments, making internal capital markets a conduit through which non-bank demand reaches the centrally cleared market.
+
+We relate, second, to a growing literature on the role of non-bank financial institutions, and hedge funds in particular, in sovereign bond and repo markets. Hedge funds have become major players in these markets through leveraged relative-value strategies such as the Treasury cash-futures basis trade \citep{barth2025, kruttli2025, pelizzon2025}, generating large and concentrated demand for specific securities and for repo financing \citep{banegas2021, aramonte2022}. A key part of this activity is that non-banks do not participate in the centrally cleared segments of these markets directly, but only participate in these segments through dealers. We provide evidence consistent with part of this access running through banks' internal markets, so that a share of non-bank demand reaches the centrally cleared segment via intragroup chains rather than direct bank-to-fund transactions. Under this interpretation, measures based only on directly observed activity may understate the non-bank footprint on repo pricing.
+
+Third, our pricing results connect to the literature on repo specialness and collateral scarcity. A security trades special when demand to borrow it in repo is high relative to its available supply \citep{duffie1996}, and security-specific supply and demand factors are a primary driver of repo rates \citep{dAmico2018}. In the euro area, the Eurosystem's asset purchases reduced the free float of government bonds and pushed up specialness \citep{arrata2020, corradin2020, pelizzon2025}. We add to this literature by identifying a previously unobserved component of security-specific demand that operates through collateral that banks source on behalf of non-banks through intragroup chains. We show that this chain-linked activity is associated with higher specialness in the cleared segment, over and above directly observable hedge fund demand.
+
+Finally, our paper relates to work on central counterparties and cleared markets. Central clearing concentrates and nets bilateral exposures, mitigating counterparty risk \citep{duffiezhu2011, menkveld2021}, and the centrally cleared segment is the core of the euro area repo market \citep{mancini2016, boissel2017}. Access to this segment, however, is restricted to clearing members, so non-banks can reach it only indirectly through a member. We contribute by documenting another channel through which this access operates in practice. Banking groups use intragroup repos to connect non-bank clients to the cleared segment across jurisdictions, and the resulting flows are associated with cleared specialness.
+
+
+
+
+The rest of the paper is organised as follows. Section \ref{sec:data} describes the data and the reporting perimeter of the Securities Financing Transactions Data Store. Section \ref{sec:descriptives} documents the size and cross border structure of intragroup repo activity. Section \ref{sec:chains} develops the chain interpretation and quantifies how much intragroup activity is linked to the rest of the chain. Section \ref{sec:empirics} estimates the pricing impact of chain activity on specialness in the EUR cleared segment. Section \ref{sec:conclusion} concludes.
+
+
+\section{Institutional Setting and Data}
+\label{sec:data}
+
+Our analysis draws on the Securities Financing Transactions Data Store (SFTDS), a transaction-level dataset by the European Central Bank (ECB) that covers all securities financing transactions involving at least one euro area established entity. The reporting perimeter, which is key for this paper, is defined by establishment rather than residence. Any entity headquartered in the euro area is a reporting agent, as is any euro area subsidiary of a foreign banking group. Conversely, foreign subsidiaries of euro area banks are not reporting agents, since they are established outside the euro area. The one exception on the foreign side concerns branches. A branch is not considered to be established in its host jurisdiction and therefore reports under its parent. As a result, foreign branches of euro area banks report their activity in full. Our sample covers the period from 2021 through 2025.
+
+Two features of the SFTDS are central to our analysis. First, the dataset includes intragroup transactions, which are excluded from data such as the Money Market Statistical Reporting (MMSR) dataset used in much of the existing euro area repo literature. This allows us to observe internal funding flows within banking groups and, in particular, the cross border and cross currency management that takes place between affiliated entities, an activity that was not captured in earlier work on the euro area repo market. We identify intragroup transactions as those in which both counterparties share the same ultimate parent. Second, the SFTDS is not restricted to euro denominated transactions. It captures securities financing transactions in all currencies, which allows us to study the USD activity of euro area banking groups alongside their EUR activity, and broadens the collateral universe we observe to include both euro area government bonds and US Treasuries.
+
+The reporting perimeter has direct implications for which segments of intragroup activity are observed in each currency. Euro area entities always report, so any intragroup transaction with at least one euro area leg is captured. Outside the euro area, only branches of euro area banks report, while subsidiaries of euro area banks do not. Whether we observe a given intragroup transaction therefore depends on the legal form of the foreign affiliate involved. 
+
+Table~\ref{tab:sub_branch} shows how this plays out in practice. In EUR intragroup transactions, the foreign legs are overwhelmingly conducted through subsidiaries, 92.8 percent in the United Kingdom and 96.4 percent in the United States, which means that they do not have a reporting requirement on their own and we thus only observe EUR intragroup activity if a euro area affiliate is involved. A transaction in EUR between a UK subsidiary and a US subsidiary is not captured in the data, but by contrast, a EUR transaction between a UK subsidiary and any euro area entity is captured through the euro area leg. 
+
+In USD intragroup transactions, by contrast, 99.1 percent of UK activity is conducted through branches, meaning that if these are branches of euro area established banks, they do report. The US side of USD intragroup activity does not have a reporting requirement, since 82.2 percent of it runs through subsidiaries. In short, the data give us full visibility on the euro area side of EUR intragroup transactions and on the UK side of USD intragroup transactions, while the foreign US legs in EUR and the domestic US legs in USD remain outside the reporting perimeter.
+
+
+
+\begin{table}[t]
+\centering
+\caption{Share of intragroup activity by entity type and residence}
+\label{tab:sub_branch}
+\begin{tabular}{llcc}
+\hline
+& & EUR (\%) & USD (\%) \\
+\hline
+Euro Area & Subsidiary & 100.0 & 100.0 \\
+          & Branch     &   0.0 &   0.0 \\
+UK        & Subsidiary &  92.8 &   0.9 \\
+          & Branch     &   7.2 &  99.1 \\
+US        & Subsidiary &  96.4 &  82.2 \\
+          & Branch     &   3.6 &  17.8 \\
+\hline
+\end{tabular}
+\caption*{\footnotesize Note: Share of gross intragroup volumes (lending $+$ borrowing) by entity type within each residence group. Intragroup repos with specific collateral (US and European government securities). Sample: 2021--2025.}
+\end{table}
+
+Having established the scope of the data, we now turn to the size and structure of the market. Table~\ref{tab:market_structure} reports daily average flows for transactions with US or euro area government securities as collateral, broken down by currency and clearing type. Two facts stand out. First, the intragroup repo market is large. In EUR, daily intragroup flows average around 130 billion euros, almost entirely in the bilateral segment. In USD, daily intragroup flows are close to 95 billion dollars, again concentrated in the bilateral segment. For comparison, interbank activity excluding intragroup transactions runs at roughly 450 billion euros per day in EUR. Second, the clearing structure differs sharply between intragroup and interbank trades. Interbank repos are predominantly cleared at a central clearing counterparty (CCP), while intragroup repos are almost exclusively bilateral. This is intuitive, since central clearing primarily provides counterparty risk mitigation and netting benefits that are of little value when both legs of the transaction belong to the same banking group. The triparty segment plays a minor role in both currencies.
+
+\begin{table}[t]
+\centering
+\caption{Daily average repo volumes by clearing type and currency}
+\label{tab:market_structure}
+\begin{tabular}{lccc}
+\hline
+& Cleared & Bilateral & Triparty \\
+\hline
+\multicolumn{4}{l}{\textit{EUR (billion euros)}} \\
+Total volume                       & 463.61 & 208.73 & 3.71 \\
+Intragroup                         &   5.35 & 125.60 & 3.67 \\
+Interbank (excl.\ intragroup)      & 443.97 &   5.96 & 0.04 \\
+\hline
+\multicolumn{4}{l}{\textit{USD (billion dollars)}} \\
+Total volume                       &  48.72 & 287.84 & 49.34 \\
+Intragroup                         &   0.00$^{*}$ &  92.31 & 1.55 \\
+Interbank (excl.\ intragroup)      &   0.00$^{*}$ &  11.35 & 0.64 \\
+\hline
+\end{tabular}
+\caption*{\footnotesize Note: New transactions with specific collateral (US and European government securities). Daily averages over 2021--2025. $^{*}$ For USD cleared trades, the counterparty is always the FICC.}
+\end{table}
+
+
+\section{Cross Border and Cross Currency Intragroup Flows}
+\label{sec:descriptives}
+
+Intragroup repo activity is overwhelmingly cross border. In EUR, 95 percent of daily intragroup volumes involve counterparties located in different jurisdictions, and in USD the figure is 79 percent. For comparison, the corresponding shares in non intragroup interbank activity are 77 percent in EUR and 79 percent in USD, so that intragroup repos are at least as international as the rest of the market and, in EUR, substantially more so. The cross border nature of intragroup activity reflects the geographic dispersion of large banking groups, whose affiliates in different jurisdictions transact with one another to move cash and securities across the group. A first pattern emerges when considering the nationality of the banking groups. Table~\ref{tab:nationality} reports the share of intragroup volumes by the nationality of the ultimate parent. In EUR, 94 percent of intragroup activity is conducted by foreign banking groups. In USD, the pattern reverses, 92 percent of intragroup activity is conducted by euro area banking groups. Cross border intragroup activity is therefore not primarily a within nationality phenomenon. It is dominated by groups operating outside their home currency, foreign groups in EUR and euro area groups in USD.
+
+\begin{table}[t]
+\centering
+\caption{Share of intragroup volumes by nationality of the banking group}
+\label{tab:nationality}
+\begin{tabular}{lcc}
+\hline
+Jurisdiction & EUR (\%) & USD (\%) \\
+\hline
+Euro area    &  5.88 & 92.25 \\
+US           & 79.38 &  6.35 \\
+UK           &  3.02 &  0.46 \\
+Other        & 11.72 &  0.94 \\
+\hline
+\end{tabular}
+\caption*{\footnotesize Note: New bilateral intragroup repos with specific collateral (US and European government securities). Shares based on daily volumes. Sample: 2021--2025.}
+\end{table}
+
+
+The geography of intragroup flows is concentrated in a small number of corridors. Figure~\ref{fig:net_positions} plots outstanding intragroup net positions by the residence of the affiliate, computed as cash lent minus cash borrowed, separately for EUR and USD. In EUR, euro area affiliates are consistently net borrowers of euro cash and UK affiliates consistently net lenders, with the imbalance peaking in 2022 and 2023. The dominant EUR corridor therefore runs between the United Kingdom and the euro area, with US affiliates playing essentially no role on either side. In USD, the picture is different. US affiliates are consistently net lenders of dollar cash, UK affiliates are consistently net borrowers, and euro area affiliates oscillate around a smaller net lending position. Thus, the dominant USD corridors involve the United States on one side and the United Kingdom on the other. Taken together with the nationality split in Table~\ref{tab:nationality}, these flows describe a consistent pattern. Foreign banking groups move euro cash and collateral between their UK and euro area affiliates, while euro area banking groups move dollar cash between their US and UK affiliates. In both cases, the foreign currency activity of the group is intermediated through a chain of affiliates in different jurisdictions rather than booked at a single location. A more granular breakdown of bilateral flows by lender and borrower jurisdiction is reported in Appendix Table~\ref{tab:flows}.
+
+
+
+\begin{figure}[t]
+\centering
+\caption{Outstanding intragroup net positions by residence}
+\label{fig:net_positions}
+\begin{subfigure}[b]{0.75\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Charts/structured/euro_net.png}
+\caption{EUR}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.75\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Charts/structured/dollar_net.png}
+\caption{USD}
+\end{subfigure}
+\caption*{\footnotesize Note: Outstanding bilateral intragroup transactions with specific collateral. Net positions are computed as cash lent minus cash borrowed; positive values indicate net lending. Panel (a) covers EUR transactions backed by European government securities; panel (b) covers USD transactions backed by US government securities. Sample period: 2021--2025.}
+\end{figure}
+
+
+\section{Intragroup chains}
+\label{sec:chains}
+
+We now provide evidence consistent with intragroup transactions operating as the middle leg of a longer intermediation chain between non banks and the centrally cleared market, rather than as standalone funding trades. In what follows we describe this chain, explain what part of it we can observe given the reporting structure of the SFTDS, and quantify how tightly intragroup activity is tied to the rest of the chain.
+
+We use the term chain to refer to the sequence
+\[
+    \text{Hedge Fund}\;\longleftrightarrow\;\text{Intragroup}\;\longleftrightarrow\;\text{CCP}
+\]
+
+where the intragroup leg is internal to a banking group and the two outer legs are with external counterparties. The chain captures a simple economic idea. Consider, for example, a hedge fund seeking to short a euro area government bond. The hedge fund contacts its prime broker, the UK affiliate of a non euro area banking group (see Section~\ref{sec:descriptives}). The UK affiliate does not have the bond, but the group's euro area affiliate can source it, either from its own inventory or, by borrowing it in the centrally cleared repo market. The euro area affiliate then transfers the bond through an intragroup repo to the UK affiliate, which in turn delivers it to the hedge fund against cash. The group as a whole intermediates between the hedge fund and the cleared market, but the trade is split across multiple jurisdictions and reporting entities, with the intragroup leg sitting in the middle. Under this interpretation, the hedge fund initiates the chain. The demand for a particular bond is assumed to originate with the non bank, and the group organises itself internally to meet it. The centrally cleared market is only the marginal source of that bond. If the euro area affiliate already holds the security, or obtains it from another counterparty, the group serves the hedge fund without ever tapping the cleared segment. The hedge fund leg should thus be almost always present when the chain operates, while the cleared leg appears only for the part that must be sourced there.
+
+The two currencies sit on opposite sides of this chain, and the part we observe differs accordingly. As discussed in Section~\ref{sec:data}, euro area subsidiaries always report, while affiliates outside the euro area report only when they are branches of euro area entities. In EUR, the United Kingdom and United States locations of foreign banking groups are predominantly subsidiaries and therefore do not report their activity. We can match euro area subsidiaries' intragroup borrowing or lending to their own activity in the centrally cleared segment, but we cannot directly observe the corresponding hedge fund leg booked at the UK affiliate. In USD, the United Kingdom locations of euro area banking groups are predominantly branches and do report. Their hedge fund activity is therefore visible. The United States affiliates of euro area groups, by contrast, are subsidiaries and their non intragroup activity is not in the data. The asymmetry implies that the EUR analysis covers the intragroup to CCP leg of the chain, while the USD analysis covers the hedge fund to intragroup leg. We do not observe both ends of the same chain in the same currency due to the reporting structure of the data. However, it is plausible that what we observe is just two sides of the same chain. 
+
+The directionality of intragroup flows is consistent with this interpretation. The US version of the basis trade implies hedge funds being long Treasuries, financed via repo, so that they borrow cash and provide securities. The euro area version runs in the opposite direction, with hedge funds shorting euro area government bonds and obtaining the securities through repo, lending cash in return. If intragroup activity is intermediating these trades, we should observe UK affiliates as net borrowers of dollar cash and net lenders of euro cash, while the offsetting positions sit at US affiliates in USD and at euro area affiliates in EUR. This is consistent with the pattern documented in Figure~\ref{fig:net_positions}. In USD, US affiliates are consistently net lenders and UK affiliates net borrowers. In EUR, the signs reverse, with UK affiliates as net lenders and euro area affiliates as net borrowers. 
+
+\begin{figure}[t]
+\centering
+\caption{Net positions of the intermediating arm against the external chain leg}
+\label{fig:chain_positions}
+\begin{subfigure}[b]{0.75\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Charts/structured/eur_net_positions.png}
+\caption{EUR, euro area subsidiaries against the cleared segment}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.75\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Charts/structured/usd_hf_netpositions.png}
+\caption{USD, UK branches against hedge funds}
+\end{subfigure}
+\caption*{\footnotesize Note: Daily net cash positions, in billions. Panel (a) covers euro area subsidiaries of foreign groups, plotting their net position in the EUR centrally cleared segment against their net intragroup position. Panel (b) covers UK branches of euro area groups, plotting their net position vis a vis Cayman domiciled hedge funds against their net intragroup position. Positive values indicate net lending of cash. Positions are summed across entities and securities each day. Sample 2021 through 2025.}
+\end{figure}
+
+Figure~\ref{fig:net_positions} shows these positions at the aggregate level of the residence group. We can sharpen the picture by studying the net positions of the affiliate that faces the external leg. Figure~\ref{fig:chain_positions} shows the intragroup net positions of the euro area affiliate in euro and the UK affiliate in USD, which is equivalent to Figure~\ref{fig:net_positions}. However, we also plot the net positions of these affiliates vis a vis the cleared segment in the euro case and hedge funds in the dollar case.\footnote{We identify hedge fund counterparties as Cayman domiciled investment funds, since the Cayman Islands are the dominant domicile for offshore hedge funds active in relative value strategies such as the Treasury basis trade.} Panel (a) covers euro area subsidiaries of foreign groups on the EUR cleared leg, and panel (b) covers UK branches of euro area groups on the USD hedge fund leg. In both panels, the external position and the intragroup position sit on opposite sides and move with each other. Euro area subsidiaries are net lenders of cash in the cleared segment, that is net receivers of bonds, and net borrowers of cash intragroup, that is net providers of bonds to their foreign affiliate. UK branches are net lenders of cash to hedge funds, hence net receivers of Treasuries, and net borrowers of cash intragroup. In each case the arm takes a position with the external counterparty and offsets it internally, so that it holds little on net. This is what we would expect of a conduit rather than a standalone position, and it is consistent with the chain viewed from each of its two observable ends. 
+
+The directionality argument is suggestive but indirect. In EUR we do not observe the leg of the chain beyond the UK affiliate, since the relevant entities are subsidiaries and therefore outside the reporting perimeter. We can nonetheless provide evidence that EUR intragroup activity is connected to hedge fund demand by exploiting variation across bonds. For each business day, we partition the set of bonds active in the EUR centrally cleared market into two groups. Intragroup bonds are bonds that also appear in an intragroup repo of a euro area subsidiary on the same day. Non intragroup bonds are bonds with no intragroup activity that day. For each set, we compute the probability that the bond also appears in a direct EUR repo between a euro area bank and a Cayman domiciled investment fund on the same date. If intragroup activity is part of a chain that ultimately serves hedge fund demand, bonds active in intragroup repos should be disproportionately likely to also appear in direct hedge fund transactions.
+
+Table~\ref{tab:hf_link} reports the comparison. Bonds with intragroup activity have a 63.8 percent probability of also appearing in a direct euro area bank to hedge fund repo on the same day, compared to 33.9 percent for bonds without intragroup activity. The difference is large and economically meaningful. The same bonds that move through the intragroup chain are therefore the bonds that hedge funds trade directly with euro area banks, consistent with the chain interpretation.
+
+\begin{table}[t]
+    \centering
+    \caption{Probability of hedge fund activity by intragroup status}
+    \label{tab:hf_link}
+    \begin{tabular}{lcc}
+        \hline
+                                    & Intragroup securities & Non intragroup securities \\
+        \hline
+        $P(\text{HF active})$       & 63.8\%           & 33.9\%               \\
+        Unique securities                & 1{,}304          & 1{,}076              \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize Note: The universe is all securities active in the EUR centrally cleared market with European government bond collateral. Intragroup securities are bonds that also appear in an intragroup repo of a euro area subsidiary on the same date. Non intragroup securities are bonds with no intragroup activity on that date. Hedge fund activity is defined as the security appearing in a bilateral EUR repo between a euro area bank and a Cayman domiciled investment fund on the same date. Standard errors clustered by security. Sample 2021 through 2025.
+    \end{flushleft}
+\end{table}
+
+
+
+\subsection{Construction of chain linked volumes}
+\label{subsec:chain_construction}
+
+To quantify how heavily intragroup activity is linked to the rest of the chain, we measure, at the level of the individual entity, security, and day, how much of an entity's intragroup position can be matched to an offsetting position on the other side of the chain. The matching is one sided in each currency. In EUR, we match euro area subsidiaries' intragroup activity to their own activity in the centrally cleared segment. In USD, we match an entity's intragroup activity to their own activity vis a vis hedge funds. In both cases, the matched volume captures the portion of the intragroup position that is offset, in the same security and on the same day, by a position with an external counterparty on the other side of the chain.
+
+We work at the entity, security, day level, indexed by $e$, $s$, and $t$. For each $(e,s,t)$, let $\text{Intra\_Lending}_{e,s,t}$ and $\text{Intra\_Borrowing}_{e,s,t}$ denote the gross intragroup volumes in which the entity lends and borrows cash, respectively, against the security. Let $\text{Other\_Lending}_{e,s,t}$ and $\text{Other\_Borrowing}_{e,s,t}$ denote the analogous gross volumes vis a vis the matched counterparty type, where \emph{Other} refers to the cleared segment in EUR and to hedge funds in USD. The net intragroup position is $\text{Intra\_Net}_{e,s,t} = \text{Intra\_Lending}_{e,s,t} - \text{Intra\_Borrowing}_{e,s,t}$, and the net other side position is defined analogously as $\text{Other\_Net}_{e,s,t}$. Positive values indicate net lending of cash.
+
+The chain linked volume is the part of the intragroup position that is offset on the other side of the chain. We define
+\[
+    \text{Chain}^{\text{in}}_{e,s,t} = \min\!\left(\text{Intra\_Borrowing}_{e,s,t},\;\text{Other\_Lending}_{e,s,t}\right)
+\]
+as the volume on which the entity borrows cash internally and lends cash externally on the other side, and
+\[
+    \text{Chain}^{\text{out}}_{e,s,t} = \min\!\left(\text{Intra\_Lending}_{e,s,t},\;\text{Other\_Borrowing}_{e,s,t}\right)
+\]
+as the volume on which the entity lends cash internally and borrows cash externally. The net chain linked volume is then $\text{Chain\_Net}_{e,s,t} = \text{Chain}^{\text{in}}_{e,s,t} - \text{Chain}^{\text{out}}_{e,s,t}$. By construction, $\text{Chain\_Net}_{e,s,t}$ is bounded in absolute value by both $\text{Intra\_Net}_{e,s,t}$ and $\text{Other\_Net}_{e,s,t}$, and equals zero whenever the entity is inactive on either side.
+
+The matched volume defined in this way is conservative. It counts as chain linked only that portion of the intragroup position for which the entity has an offsetting position on the other side, in the same security and on the same day. In practice, the chain may operate at a coarser frequency. An entity may receive a security through an intragroup repo on one day and pass it on the next, or net positions across closely substitutable securities. Requiring a match in $(s,t)$ therefore understates the share of intragroup activity that is part of the chain. To bracket the relevant magnitudes, we report two bounds. The lower bound uses the matched volume directly,
+\[
+    \text{Lower bound} = \frac{\sum_{e,s,t}\left|\text{Chain\_Net}_{e,s,t}\right|}{\sum_{e,s,t}\left|\text{Intra\_Net}_{e,s,t}\right|},
+\]
+and captures the share of intragroup volume that is exactly offset on the other side. The upper bound replaces the offsetting requirement with a participation indicator,
+\[
+    \text{Upper bound} = \frac{\sum_{e,s,t}\left|\text{Intra\_Net}_{e,s,t}\right|\cdot \mathbf{1}\!\left[\text{Other\_Active}_{e,s,t}\right]}{\sum_{e,s,t}\left|\text{Intra\_Net}_{e,s,t}\right|},
+\]
+where $\mathbf{1}[\text{Other\_Active}_{e,s,t}]$ equals one whenever the entity has any activity in the same security and on the same day on the other side of the chain. The upper bound counts as chain linked all intragroup volume on entity, security, day cells where the entity is also active externally. The two bounds therefore frame the share of intragroup activity that is plausibly chain linked from below and from above.
+
+
+Table~\ref{tab:chain_bounds} reports the two bounds for each currency. In EUR, between 36.7 and 63.8 percent of intragroup volume can be tied to the centrally cleared segment through euro area subsidiaries. In USD, the corresponding bounds for the link between intragroup volume and hedge fund activity runs from 57.3 to 79.3 percent. The bounds are economically large in both currencies and tighter in USD, where over half of intragroup volume is offset by a hedge fund position in the same security on the same day. This gap is consistent with the initiating role of the hedge fund under the chain interpretation. The hedge fund leg is the originating demand and is present almost whenever the chain runs, whereas the cleared segment is only one of the routes through which the group sources the bond, so a smaller share of intragroup volume maps into it. Recall that the EUR figures capture only one side of the chain, namely the intragroup to CCP leg, while the USD figures capture the hedge fund to intragroup leg. Taken together, the results imply that intragroup repos are not predominantly used for standalone within group funding. A substantial fraction operates as the middle leg of an intermediation chain that connects non banks to the cleared market through affiliates located in different jurisdictions.
+
+\begin{table}[t]
+    \centering
+    \caption{Share of intragroup volume linked to the rest of the chain}
+    \label{tab:chain_bounds}
+    \begin{tabular}{lcc}
+        \hline
+        Chain & Lower bound (\%) & Upper bound (\%) \\
+        \hline
+        EUR Intragroup $\leftrightarrow$ CCP          & 36.7 & 63.8 \\
+        USD Intragroup $\leftrightarrow$ Hedge Funds  & 57.3 & 79.3 \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize Note: Lower and upper bounds on the share of intragroup volume linked to the other side of the chain, computed as defined in the text. The EUR row matches euro area subsidiaries' intragroup activity to their own activity in the centrally cleared segment. The USD row matches UK affiliates' intragroup activity to their own activity vis a vis hedge funds. Sample 2021 through 2025.
+    \end{flushleft}
+\end{table}
+
+
+The bounds in Table~\ref{tab:chain_bounds} answer the question of how much intragroup activity is linked to the rest of the chain. We now reverse the perspective and ask, for entities active in the intragroup market, how much of their cleared activity in EUR or hedge fund activity in USD is linked to intragroups. Table~\ref{tab:chain_bounds_reverse} reports the corresponding bounds. In EUR, between 30.7 and 50.7 percent of euro area subsidiaries' cleared volumes are linked to their intragroup activity. In USD, the share is markedly higher, with between 87.7 and 97.5 percent of UK affiliates' hedge fund volumes linked to intragroups. For the entities that participate in both markets, intragroup activity and external activity on the other side of the chain are therefore tightly intertwined, and almost mechanically so in USD. 
+
+\begin{table}[t]
+    \centering
+    \caption{Share of cleared or hedge fund volume linked to intragroups, conditional on intragroup participation}
+    \label{tab:chain_bounds_reverse}
+    \begin{tabular}{lcc}
+        \hline
+        Activity & Lower bound (\%) & Upper bound (\%) \\
+        \hline
+        EUR Intragroup $\leftrightarrow$ CCP          & 30.7 & 50.7 \\
+        USD Intragroup $\leftrightarrow$ Hedge Funds  & 87.7 & 97.5 \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize Note: Lower and upper bounds on the share of cleared (EUR) or hedge fund (USD) volume linked to intragroup activity, conditional on entities participating in the intragroup market. The EUR row measures the share of euro area subsidiaries' centrally cleared volumes that is linked to their own intragroup activity. The USD row measures the share of UK affiliates' volumes vis a vis hedge funds that is linked to their own intragroup activity. Sample 2021 through 2025.
+    \end{flushleft}
+\end{table}
+
+The previous two exercises condition on entities that are active in the intragroup market. A natural follow up is to ask, unconditionally, how much of total cleared or hedge fund market activity can be traced back to intragroups. Table~\ref{tab:chain_bounds_unconditional} reports the bounds. In EUR, intragroup linked volumes account for a modest share of the cleared market, between 8.4 and 13.8 percent of total centrally cleared volumes in euro denominated repos backed by European government bonds. The cleared market is large and broadly based, and the intragroup chain is one of several routes into it. In USD, between 83.3 and 92.6 percent of total bilateral USD repo volumes with hedge funds against US Treasury collateral can be tied to intragroup activity. The bilateral USD repo market vis a vis hedge funds is therefore not just heavily reliant on intragroup chains for the subset of entities that use them. It is, to a first approximation, the intragroup chain. This asymmetry between the two currencies reflects both the structure of the underlying markets and the reporting perimeter of the data, since in USD we observe the hedge fund leg through UK branches of euro area banks, which are precisely the entities that intermediate between hedge funds and the rest of their group.
+
+\begin{table}[t]
+    \centering
+    \caption{Share of total cleared or hedge fund market volume linked to intragroups}
+    \label{tab:chain_bounds_unconditional}
+    \begin{tabular}{lcc}
+        \hline
+        Activity & Lower bound (\%) & Upper bound (\%) \\
+        \hline
+        EUR Intragroup $\leftrightarrow$ CCP          & 8.4  & 13.8 \\
+        USD Intragroup $\leftrightarrow$ Hedge Funds  & 83.3 & 92.6 \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize Note: Lower and upper bounds on the share of total market volumes linked to intragroup activity, computed across all entities rather than only those active in the intragroup market. The EUR row covers all centrally cleared euro denominated repos with European government bond collateral. The USD row covers all bilateral USD repos with US Treasury collateral vis a vis hedge funds. Sample 2021 through 2025.
+    \end{flushleft}
+\end{table}
+
+
+The bounds quantify how much of the intragroup position is offset on the other side of the chain in aggregate. We now formalise the same idea at the level of the individual entity, security, and day, and ask directly whether the intragroup leg moves together with the matched external leg. For each intermediating entity $e$, security $s$, and day $t$ we estimate
+\begin{equation}
+    \text{Intra}_{e,s,t} = \gamma\,\text{Ext}_{e,s,t} + \mu_{e,s} + \delta_{t} + u_{e,s,t},
+    \label{eq:passthrough}
+\end{equation}
+where $\text{Ext}_{e,s,t}$ is the entity's volume on the external chain leg, the centrally cleared segment in EUR and hedge funds in USD, $\mu_{e,s}$ are entity by security fixed effects, and $\delta_{t}$ are date fixed effects. The entity by security fixed effects mean that identification comes from variation over time within a given entity and bond, not from differences across entities or bonds. We estimate equation~\eqref{eq:passthrough} twice. In the first version $\text{Intra}$ and $\text{Ext}$ are gross volumes, where a pass-through implies a positive coefficient $\gamma$. In the second version they are net cash positions, where an offsetting conduit implies a negative coefficient. Standard errors are clustered by bond.
+
+Table~\ref{tab:passthrough} reports the estimates. In USD the gross coefficient is 1.05 and the net coefficient is $-0.75$. A UK branch's intragroup position moves close to one for one with its hedge fund position and the branch warehouses almost nothing on net. In EUR the coefficients are smaller, 0.29 on gross volumes and $-0.34$ on net positions, consistent with euro area subsidiaries offseting around a third of their cleared activity through intragroup. The contrast is economically sensible. For the UK branch the Treasury comes from the hedge fund and is sent on intragroup, so the branch is close to a pure pass-through. The euro area subsidiary has the cleared market as only one of several ways to obtain a bond, since it may already hold the security or source it elsewhere, so only part of its intragroup activity maps one for one into cleared sourcing. The magnitudes line up with the bounds in Table~\ref{tab:chain_bounds}, where the EUR link runs from roughly a third to two thirds and the USD link is markedly higher.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Pass-through of the external chain leg into intragroup activity}
+    \label{tab:passthrough}
+    \begin{tabular}{lcccc}
+        \hline
+                                    & \multicolumn{2}{c}{EUR} & \multicolumn{2}{c}{USD} \\
+                                    & Gross        & Net           & Gross        & Net           \\
+        \hline
+        External leg                & 0.29$^{***}$ & $-0.34^{***}$ & 1.05$^{***}$ & $-0.75^{***}$ \\
+                                    & (0.01)       & (0.01)        & (0.03)       & (0.02)        \\
+        \hline
+        Entity $\times$ security FE & Y            & Y             & Y            & Y             \\
+        Date FE                     & Y            & Y             & Y            & Y             \\
+        Observations                & 4{,}473{,}992 & 4{,}473{,}992 & 387{,}871   & 387{,}871     \\
+        Within $R^{2}$              & 0.08         & 0.11          & 0.63         & 0.40          \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize Note: Estimates of equation~\eqref{eq:passthrough} at the entity by security by day level. In the gross columns the dependent variable is the entity's gross intragroup volume in the bond and the regressor (``External leg'') is its gross volume on the external chain leg. In the net columns the dependent variable is the entity's net intragroup cash position and the regressor is its net position on the external leg. The external leg is the centrally cleared segment in EUR and hedge funds in USD. EUR covers euro area subsidiaries of foreign groups, USD covers UK branches of euro area groups. All columns include entity by security and date fixed effects. Standard errors in parentheses are clustered by bond. Volumes and positions are in billions. Sample 2021 through 2025. $^{***}$ $p<0.01$.
+    \end{flushleft}
+\end{table}
+
+
+
+\section{Market Impact}
+\label{sec:empirics}
+
+The previous section provided evidence that intragroup repos sit at the center of an intermediation chain connecting non banks and the cleared market. We now ask whether this chain is reflected in pricing in the cleared segment. Under the chain interpretation, when a euro area subsidiary sources a bond on behalf of a foreign affiliate to satisfy hedge fund short demand, the bond is taken out of the pool of collateral available to other participants. This reduction in available supply would push the bond to trade more special, in the sense that its repo rate falls below the unsecured benchmark. If the chain operates as described in Section \ref{sec:chains}, we expect a positive association between chain linked intragroup activity in a bond and that bond's specialness, even after accounting for directly observable hedge fund demand. We focus on the EUR cleared segment, where we observe euro area subsidiaries on the intragroup to CCP leg of the chain and can also identify direct EUR repo transactions between euro area banks and hedge funds.
+
+\subsection{Empirical specification}
+
+We estimate the following security by date level regression,
+\begin{equation}
+    \text{Special}_{i,t} = \beta_{1}\,\text{Intra}_{i,t} + \beta_{2}\,\text{Intra}^{\text{unlinked}}_{i,t} + \beta_{3}\,\text{HF}_{i,t} + \beta_{4}\,\text{Bench}_{i,t} + \alpha_{i} + \delta_{t} + \varepsilon_{i,t},
+    \label{eq:specialness}
+\end{equation}
+where $i$ indexes the security, $t$ indexes business days, and $\varepsilon_{i,t}$ is an error term. The dependent variable $\text{Special}_{i,t}$ measures specialness in basis points, defined as the difference between the \euro{}STR benchmark and the cleared repo rate for bond $i$ on date $t$. Positive values indicate that the bond trades on special.
+
+The two intragroup regressors decompose euro area subsidiaries' intragroup borrowing in bond $i$ on date $t$ into a chain linked component and a residual. $\text{Intra}_{i,t}$ is the chain linked component, measured as the cleared-matched chain volume $\text{Chain}^{\text{in}}$ constructed in Section~\ref{subsec:chain_construction}. At the entity, bond, day level it equals $\min(\text{Intra\_Borrowing},\,\text{Cleared\_Lending})$, the part of a euro area subsidiary's intragroup borrowing in the bond that is offset by its own cleared lending in the same bond on the same day, and we sum it across subsidiaries to the bond by date level. This is the volume that fits the chain mechanism, with the subsidiary sourcing the bond in the cleared segment and passing it on through an intragroup repo. $\text{Intra}^{\text{unlinked}}_{i,t}$ is the residual intragroup borrowing that is not matched in this way and serves as a placebo. If the pricing effect is driven by the chain rather than by intragroup activity per se, we expect $\beta_{1}$ to be positive while $\beta_{2}$ should be close to zero.
+
+$\text{HF}_{i,t}$ captures the directly observable hedge fund channel, constructed in the same matched way. At the entity, bond, day level it equals $\min(\text{HF\_Borrowing},\,\text{Cleared\_Lending})$, the part of a euro area bank's direct repo against Cayman domiciled investment funds in the bond that is offset by its own cleared lending in the same bond on the same day, summed to the bond by date level. It measures hedge fund demand for the bond that draws on the cleared segment's collateral pool. The coefficient $\beta_{3}$ captures the association between this direct channel and specialness.
+
+The benchmark term $\text{Bench}_{i,t}$ is the volume of cleared repo in bond $i$ on date $t$ by banks that have neither chain linked nor hedge fund activity in the bond that day. It measures how actively the bond is traded in the cleared segment through channels unrelated to the chain, and it captures variation within a bond over time that the bond fixed effects cannot absorb. 
+
+We include bond fixed effects $\alpha_{i}$ to absorb time invariant differences across bonds, such as issuer, maturity bucket, or persistent specialness premia, and date fixed effects $\delta_{t}$ to absorb common shocks to repo market conditions. Identification therefore comes from variation within bond and within date. In the final column we replace the bond fixed effects with bond by month fixed effects, so that identification rests on variation within a bond within a calendar month. Standard errors are clustered by bond, which allows for correlation in specialness within the same bond over time. The sample covers all bonds active in the EUR centrally cleared market with European government bond collateral over the period 2021 through 2025.
+
+It is important to note that specialness and chain linked sourcing are jointly determined within the day, since a bond that is already special is also likley to be the bond a hedge fund seeks to short and that the chain is mobilised to source, so the regression captures their co-movement in equilibrium rather than a causal channel.
+
+\subsection{Results}
+
+Table~\ref{tab:specialness} reports the estimates. Column 1 includes only the chain linked intragroup variable, column 2 only the direct hedge fund variable, and column 3 includes both. Column 4 adds the unlinked intragroup placebo, column 5 adds the bank benchmark, and column 6 repeats the column 5 specification with bond by month and date fixed effects.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Chain activity and specialness in the EUR cleared segment, cleared-matched volumes}
+    \label{tab:specialness}
+    \begin{tabular}{lcccccc}
+        \hline
+        Dependent variable: Specialness (bp) & (1) & (2) & (3) & (4) & (5) & (6) \\
+        \hline
+        Intragroup (linked)    & 4.06$^{***}$ &              & 3.62$^{***}$ & 3.46$^{***}$ & 3.42$^{***}$ & 0.97$^{***}$ \\
+                               & (0.50)       &              & (0.50)       & (0.46)       & (0.46)       & (0.21)       \\
+        Intragroup (unlinked)  &              &              &              & 0.50         & 0.46         & 0.08         \\
+                               &              &              &              & (0.43)       & (0.42)       & (0.12)       \\
+        HF volume              &              & 3.11$^{***}$ & 2.56$^{***}$ & 2.54$^{***}$ & 2.33$^{***}$ & 0.88$^{***}$ \\
+                               &              & (0.46)       & (0.45)       & (0.45)       & (0.46)       & (0.32)       \\
+        Bank benchmark         &              &              &              &              & 0.47$^{***}$ & 0.25$^{***}$ \\
+                               &              &              &              &              & (0.11)       & (0.08)       \\
+        \hline
+        Bond FE                & Y            & Y            & Y            & Y            & Y            &              \\
+        Bond $\times$ Month FE &              &              &              &              &              & Y            \\
+        Date FE                & Y            & Y            & Y            & Y            & Y            & Y            \\
+        Observations           & 534{,}536    & 534{,}536    & 534{,}536    & 534{,}536    & 534{,}536    & 533{,}795    \\
+        $R^{2}$                & 0.588        & 0.587        & 0.589        & 0.589        & 0.589        & 0.838        \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize Note: OLS estimates. The dependent variable is specialness in basis points at the bond by date level, defined as the \euro{}STR benchmark minus the cleared repo rate. Volumes are in billions of euros. The chain and hedge fund regressors are the cleared-matched volumes constructed in Section~\ref{subsec:chain_construction}. ``Intragroup (linked)'' is the matched chain volume $\text{Chain}^{\text{in}}$, the part of a euro area subsidiary's intragroup borrowing in the bond that is offset by its own cleared lending in the same bond on the same day. ``Intragroup (unlinked)'' is the residual intragroup borrowing. ``HF volume'' is the analogously matched volume between euro area banks and Cayman domiciled funds. ``Bank benchmark'' is cleared volume in the bond by banks with no chain or hedge fund activity in the bond on that day. Columns 1 to 5 include bond and date fixed effects. Column 6 includes bond by month and date fixed effects. Standard errors in parentheses are clustered by bond. Sample 2021 through 2025. $^{***}$ $p<0.01$, $^{**}$ $p<0.05$, $^{*}$ $p<0.10$.
+    \end{flushleft}
+\end{table}
+
+Several results stand out. First, the chain linked intragroup coefficient is positive and statistically significant in every specification. In column 3, a one billion euro increase in chain linked intragroup borrowing in a bond is associated with an additional 3.6 basis points of specialness once we account for direct hedge fund volume. The association is in the direction the chain mechanism predicts. Second, the direct hedge fund channel is also strongly associated with specialness. Each billion euros of matched repo between euro area banks and Cayman domiciled funds is associated with 2.6 basis points of specialness in column 3. Third, the unlinked intragroup placebo is small and statistically insignificant in column 4, with a point estimate of 0.50 basis points. Intragroup activity that does not fit the chain pattern shows no association with specialness, consistent with the chain coefficient reflecting the specific mechanism of Section~\ref{sec:chains} rather than a generic relationship between intragroup activity and repo pricing.
+
+A natural concern is that chain linked sourcing is simply higher in bonds that are heavily traded, and that heavily traded bonds are special for reasons unrelated to the chain. The bond fixed effects absorb permanent differences across bonds, but not how actively a given bond trades from one day to the next. Column 5 addresses this by adding the bank benchmark, the cleared volume in the bond from banks with no chain or hedge fund activity that day. This measures generic dealer demand for the bond, so including it identifies the chain coefficient net of how busy the bond is at the time. The chain coefficient barely moves, remaining around 3.4 basis points, so the result is unlikely to be an artifact of trading activity. The benchmark itself enters positively, at 0.47 basis points per billion, which is what we would expect, since demand for a specific bond from any source bears on its specialness. The point is that generic dealer demand prices much less per unit than the chain.
+
+Column 6 imposes the most demanding fixed effects, replacing the bond effects with bond by month effects. The chain coefficient remains positive and significant at 0.97 basis points per billion. The interpretation is now within bond and within month, so a billion of chain linked sourcing is associated with 0.97 basis points more specialness relative to the same bond's average over the month. The coefficient is smaller because most of the cross sectional variation in specialness is absorbed, but the effect survives in the variation that remains, which is the variation hardest to attribute to fixed bond characteristics or slow moving demand.
+
+The magnitudes are economically meaningful when scaled by the distribution of volumes in the sample. Mean specialness across the sample is 5.2 basis points. At the mean of chain linked intragroup volume, around 0.13 billion euros, the chain coefficient implies a contribution of about 0.5 basis points of specialness under the chain interpretation in the column 3 specification, or roughly 9 percent of the average. At the 99th percentile of chain linked volume, around 1.16 billion euros, the figure rises to about 4.2 basis points. The direct hedge fund channel co-moves with about 0.4 basis points at the mean of hedge fund volume, or roughly 7 percent of average specialness. Together the two hedge fund related channels are thus associated with roughly 16 percent of average specialness in the cleared segment. 
+
+More than half of this combined figure is associated with the chain channel, which is invisible without intragroup data. This has a direct implication for the measurement of hedge fund footprints in euro area repo markets. Studies that rely only on directly observed bank to hedge fund transactions capture the 7 percent associated with the direct channel but miss the additional 9 percent linked to the intragroup chain. Under the chain interpretation, the measured footprint of hedge fund demand on cleared specialness is understated by more than half when intragroup data are unavailable. The intragroup market is therefore not just a parallel funding channel internal to banking groups. It is a quantitatively important conduit between non bank demand and the price of liquidity in the cleared segment.
+
+
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper provides one of the first systematic looks at intragroup repo activity in the euro area, using transaction level data from the Securities Financing Transactions Data Store. Three findings emerge.
+
+First, the intragroup repo market is large and overwhelmingly cross border. Daily intragroup flows average around 130 billion euros and 95 billion dollars, with 95 percent of EUR and 79 percent of USD volumes involving counterparties in different jurisdictions. Intragroup activity is dominated by groups operating outside their home currency, with foreign banking groups accounting for 94 percent of EUR intragroup volumes and euro area groups accounting for 92 percent of USD intragroup volumes. The geography of these flows is concentrated in a small number of corridors that link the United States, the United Kingdom, and the euro area, consistent with banking groups using their international affiliate networks to manage cross currency funding and collateral.
+
+Second, our evidence is consistent with intragroup repos operating as the middle leg of an intermediation chain that runs from non bank borrowers through internal affiliates to the centrally cleared market, rather than as standalone funding trades. The reporting perimeter of the data allows us to observe one side of this chain in each currency, the intragroup to CCP leg in EUR and the hedge fund to intragroup leg in USD. The directionality of intragroup flows lines up with known hedge fund strategies in both currencies, and direct evidence from the EUR market shows that bonds active in intragroup repos are nearly twice as likely to also appear in direct bank to hedge fund transactions on the same day. Quantitatively, between 37 and 64 percent of EUR intragroup volumes and between 57 and 79 percent of USD intragroup volumes can be matched to offsetting activity on the other side of the chain. Looking across the entire market rather than only within intragroup participants, the share of total hedge fund USD repo volumes that can be tied to intragroup chains reaches between 83 and 93 percent.
+
+Third, the chain is associated with pricing in the cleared segment. Chain linked intragroup borrowing is associated with roughly 3.6 basis points more specialness in the EUR cleared market per billion euros of volume, in addition to the 2.6 basis points associated with directly observable hedge fund transactions. Unlinked intragroup activity has no comparable association, consistent with the chain mechanism rather than a generic feature of intragroup repos. Together, the direct and chain channels are associated with roughly 16 percent of average specialness in the cleared segment, of which more than half would be invisible without intragroup data.
+
+The results have implications for both the measurement and the interpretation of non bank activity in euro area repo markets. On the measurement side, under the chain interpretation, studies that rely only on directly observed bank to hedge fund transactions understate the footprint of hedge funds on cleared specialness by more than half. The intragroup chain is a quantitatively important conduit between non bank demand and the price of liquidity in the cleared segment, and ignoring it produces a less complete picture of where collateral demand originates. On the interpretation side, the findings suggest that the boundary between intragroup funding and external market intermediation is less distinct than the labels imply. What looks like internal balance sheet management at the affiliate level is in many cases the middle step of a chain that ultimately reallocates collateral between non bank investors and the rest of the market.
+
+
+\clearpage
+\singlespacing
+\bibliography{references}
+\bibliographystyle{elsarticle-harv}
+
+\clearpage
+\onehalfspacing
+\section*{Appendix for \\
+"Internal Securities Markets"}
+
+\renewcommand{\thepage}{A -- \arabic{page}}
+\setcounter{page}{1}
+
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection\arabic{subsection}}
+
+\setcounter{equation}{0}
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+
+\renewcommand\thetable{\Alph{section}\arabic{table}} \setcounter{table}{0}
+\renewcommand\thefigure{\Alph{section}\arabic{figure}} \setcounter{figure}{0}
+
+
+\clearpage
+
+\begin{figure}[t]
+\centering
+\caption{Outstanding intragroup volumes by nationality of the banking group}
+\label{fig:nationality_volumes}
+\begin{subfigure}[b]{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Charts/structured/euro_nationality_outstanding.png}
+\caption{EUR}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Charts/structured/dollar_nationality_outstanding.png}
+\caption{USD}
+\end{subfigure}
+\caption*{\footnotesize Note: Outstanding bilateral intragroup transactions with specific collateral. Panel (a) covers EUR transactions backed by European government securities; panel (b) covers USD transactions backed by US government securities. Sample period: 2021--2025.}
+\end{figure}
+
+
+
+\begin{table}[t]
+\centering
+\caption{Bilateral intragroup flows by lender and borrower jurisdiction}
+\label{tab:flows}
+\begin{tabular}{lcc}
+\hline
+Lender $\rightarrow$ Borrower & EUR (\%) & USD (\%) \\
+\hline
+GB $\rightarrow$ EA &  51.76 &  0.99 \\
+EA $\rightarrow$ GB &  42.87 &  1.65 \\
+US $\rightarrow$ GB &   0.00 & 46.06 \\
+GB $\rightarrow$ US &   0.00 & 24.47 \\
+US $\rightarrow$ US &   0.00 & 19.47 \\
+EA $\rightarrow$ EA &   4.78 &  0.35 \\
+EA $\rightarrow$ US &   0.00 &  3.93 \\
+US $\rightarrow$ EA &   0.00 &  2.71 \\
+GB $\rightarrow$ GB &   0.00 &  0.00 \\
+Other               &   0.06 &  0.34 \\
+\hline
+\end{tabular}
+\caption*{\footnotesize Note: Bilateral intragroup repos with specific collateral (US and European government bonds). Shares based on daily volumes. Arrows indicate the flow of cash (lender $\rightarrow$ borrower). Sample: 2021--2025.}
+\end{table}
+
+
+\clearpage
+\paragraph{Gross-volume specification.} Table~\ref{tab:specialness_gross} repeats the market impact regression of Section~\ref{sec:empirics} with gross-volume measures in place of the cleared-matched ones used in the main text. Here $\text{Intra}_{i,t}$ is intragroup borrowing on bank-bond days where the same euro area subsidiary is also active in the cleared segment, a participation based linked measure rather than the matched $\text{Chain}^{\text{in}}$, and $\text{HF}_{i,t}$ is the full bilateral volume between euro area banks and Cayman domiciled funds. The chain and hedge fund coefficients are positive and significant throughout, and the unlinked placebo is insignificant, so the conclusions are unchanged. The matched specification in the main text isolates a smaller and more tightly defined volume, which is why its per-billion coefficients are larger.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Chain activity and specialness in the EUR cleared segment, gross volumes}
+    \label{tab:specialness_gross}
+    \begin{tabular}{lcccccc}
+        \hline
+        Dependent variable: Specialness (bp) & (1) & (2) & (3) & (4) & (5) & (6) \\
+        \hline
+        Intragroup (linked)    & 2.44$^{***}$ &              & 1.86$^{***}$ & 1.83$^{***}$ & 1.83$^{***}$ & 0.46$^{***}$ \\
+                               & (0.34)       &              & (0.34)       & (0.34)       & (0.34)       & (0.12)       \\
+        Intragroup (unlinked)  &              &              &              & $-0.40$      & $-0.46$      & 0.16         \\
+                               &              &              &              & (0.32)       & (0.31)       & (0.12)       \\
+        HF volume              &              & 3.72$^{***}$ & 3.31$^{***}$ & 3.32$^{***}$ & 3.18$^{***}$ & 1.35$^{***}$ \\
+                               &              & (0.37)       & (0.35)       & (0.35)       & (0.35)       & (0.27)       \\
+        Bank benchmark         &              &              &              &              & 0.39$^{***}$ & 0.23$^{***}$ \\
+                               &              &              &              &              & (0.10)       & (0.06)       \\
+        \hline
+        Bond FE                & Y            & Y            & Y            & Y            & Y            &              \\
+        Bond $\times$ Month FE &              &              &              &              &              & Y            \\
+        Date FE                & Y            & Y            & Y            & Y            & Y            & Y            \\
+        Observations           & 534{,}536    & 534{,}536    & 534{,}536    & 534{,}536    & 534{,}536    & 533{,}795    \\
+        $R^{2}$                & 0.588        & 0.591        & 0.592        & 0.592        & 0.592        & 0.838        \\
+        \hline
+    \end{tabular}
+    \begin{flushleft}
+        \footnotesize Note: OLS estimates. The dependent variable is specialness in basis points at the bond by date level, defined as the \euro{}STR benchmark minus the cleared repo rate. Volumes are in billions of euros. ``Intragroup (linked)'' is euro area subsidiary intragroup borrowing in bonds where the same entity is also active in the cleared segment on the same day. ``Intragroup (unlinked)'' is the residual intragroup borrowing. ``HF volume'' is bilateral EUR repo between euro area banks and Cayman domiciled funds. ``Bank benchmark'' is cleared volume in the bond by banks with no chain or hedge fund activity in the bond on that day. Columns 1 to 5 include bond and date fixed effects. Column 6 includes bond by month and date fixed effects. Standard errors in parentheses are clustered by bond. Sample 2021 through 2025. $^{***}$ $p<0.01$, $^{**}$ $p<0.05$, $^{*}$ $p<0.10$.
+    \end{flushleft}
+\end{table}
+
+
+
+\end{document}
+

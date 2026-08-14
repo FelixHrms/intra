@@ -234,6 +234,59 @@ through all routes), fine as event study.
 - Remaining switch-off variation is **bond-level, not entity-level**: basket entry
   *and exit* events (3.5) are the only clean on/off left in-sample.
 
+### The calibrated counterfactual model (new centerpiece candidate)
+Resolution of the model question in §3 ("Optional: the model"): a decorative model
+(propositions, no data contact) is out. A **quantified model as counterfactual machine**
+is in: it *performs* the function-removal experiment that does not exist in the sample
+(ground rule 4), disciplined by our own measurements instead of untested predictions.
+
+**Three-step counterfactual (user's structure, 2026-08-14):**
+1. **Direct-route capacity.** How much could EA banks intermediate to HFs at max if
+   they were the only links? Balance-sheet space of the direct lenders: Pillar 3
+   leverage headroom × repo-exposure-per-unit-of-leverage (public, quarterly). Note:
+   capacity is plausibly *two* constraints — balance sheet AND client franchise (the
+   gates story); discuss which binds.
+2. **True demand.** X = direct HF volume + chain volume from the matched construction
+   (3.1 quantities). Unmeasurable without the intragroup legs → intragroup-necessity
+   rule satisfied; this is where the paper's data moat sits.
+3. **Counterfactual price.** Close the crossing; push X onto the direct route's supply
+   curve: how far do rates/specialness move, and how much demand goes unserved once
+   direct capacity binds? Two regimes to keep apart: **repriced** (slides up the direct
+   cost curve) vs **rationed** (unserved residual once capacity binds).
+
+**Calibration inputs → all from analyses already planned:**
+- Slope of cleared-market supply: borrowed QE elasticity (3.1, Arrata et al.).
+- Shadow price of the gate: matched-leg spreads (3.4).
+- Marginal route split: basket entry/exit events (3.5).
+- Slope of the direct route's cost curve: balance-sheet-utilization variation
+  (quarter-end variation usable as a *calibration input* here — this does NOT revive
+  3.3 as a headline analysis).
+- Route substitutability: the one free parameter the data must bound → CS exit
+  (below, to discuss).
+
+**Why CS helps (sketch for tomorrow's discussion — user unconvinced yet):** the
+counterfactual's answer hinges on what demand does when a chain closes: reroute to
+other groups' chains, reroute to the direct route, or vanish. That rerouting share is
+the substitutability parameter, and the CS exit is the **only observed chain closure**
+in-sample. Reuse the graveyard's A−B−C logic on it: after CS's EUR chain died, did
+CS-linked bonds' chain volume reappear at other groups (chain→chain), show up as
+direct HF volume (chain→direct), or disappear (unserved)? Even at ~2bn it is a bound
+on the parameter, not a headline — the model is what gives the CS case study a job.
+
+**Policy referent (framing, not analysis):** the counterfactual "crossing closed" has
+a real-world analogue — inter-affiliate exemption fights in the US clearing mandate,
+ring-fencing/subsidiarization debates. Keeps the clearing-mandate material in its
+motivational role.
+
+**Open questions for tomorrow:**
+1. CS rerouting design: exact A−B−C implementation and whether the post-exit window
+   is clean (run/gilt crisis overlap Oct 2022).
+2. Repriced vs rationed: which regime to report, or both as bounds?
+3. Capacity endogeneity: headroom is a chosen buffer, not a physical max — how to
+   state the "max intermediation" number honestly (report as range?).
+4. Franchise constraint: can small EA banks even face these HFs? If not, direct-route
+   capacity is franchise-limited before it is balance-sheet-limited — changes step 1.
+
 ## 8. Sources for checked facts
 
 - JPM SE: jpmorgan.com corporate news 2022 (consolidation into single EU entity)

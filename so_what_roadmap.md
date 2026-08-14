@@ -205,7 +205,36 @@ through all routes), fine as event study.
    first weeks post-flip (3.2).
 9. (Optional, to close CS out:) histogram of CS bond-level chain shares pre-2022-10.
 
-## 7. Sources for checked facts
+## 7. Addendum — session 2026-08-14
+
+### Full-chain visibility case (SocGen) — internal validation only
+- US branches of EA entities active in USD intragroup: small cell. Main case is SocGen:
+  HF → SG London branch → SG NY branch → FICC (most frequent counterparty of the NY
+  branch is the FICC). Roughly 4bn average outstanding; stops in 2023.
+- While it ran, all three legs of one chain are visible in a single currency → use
+  **internally** to validate the chain reading and the 3.4 splice (HF rate − intragroup
+  rate − cleared rate on actual chains). Publication doubtful: likely a single-group
+  cell → confidentiality. Before deciding, count other US branches of EA groups with a
+  market-facing leg (k-anonymity check).
+- 2023 stop unresolved: rebooking into SGAS (long-existing US broker-dealer sub, FICC
+  member) vs. exit under the 2023 strategy shift. Distinguishable from the UK-branch
+  side, which reports throughout: counterparty flips to a US-res/US-inc sub picking up
+  the volume = rebooking; UK branch's USD intragroup shrinks too = exit. If rebooking:
+  USD mirror of the migration exhibits — form flips, function continuous, and a leg of
+  the chain leaves the regulator's field of view (good for the observability narrative).
+
+### Calendar / switch-off checks closed
+- Queried: no EUR business day (2021-01-04 → 2025-07-01) with non-cleared volume but
+  zero intragroup observations. The entity-level "dead chain day" does not exist.
+- UK holidays settled (see graveyard): desks follow the currency's calendar (TARGET).
+  Keep only as the positive fact: chains follow the currency's calendar, not the
+  geography of the booking entity.
+- 3.3 (calendar / window dressing): deprioritized in discussion 2026-08-14 — do not
+  pitch as the headline analysis.
+- Remaining switch-off variation is **bond-level, not entity-level**: basket entry
+  *and exit* events (3.5) are the only clean on/off left in-sample.
+
+## 8. Sources for checked facts
 
 - JPM SE: jpmorgan.com corporate news 2022 (consolidation into single EU entity)
 - ECB desk-mapping: bankingsupervision.europa.eu blog 2022-05-19; SSM newsletter

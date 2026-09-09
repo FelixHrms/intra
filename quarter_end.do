@@ -79,7 +79,8 @@ lincom (d_m2 + d_m1 + d_0)/3
 *** QUANTITY
 *** Daily chain volume of the euro area entity summed across bonds, zeros
 *** filled, divided by the entity's own mean over the reference days of the
-*** event. Coefficients are fractions of normal volume.
+*** event, weighted by that mean so the estimate is the response of the
+*** aggregate crossing. Coefficients are fractions of normal volume.
 
 preserve
 collapse (sum) chain, by(entity_id date)
@@ -93,81 +94,10 @@ bysort entity_id event: egen base = mean(cond(k <= -5, chain, .))
 gen chain_n = chain / base
 egen ent_event = group(entity_id event)
 
-reghdfe chain_n d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3, absorb(ent_event) vce(cluster date)
+reghdfe chain_n d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3 [aw = base], absorb(ent_event) vce(cluster date)
 lincom (d_m2 + d_m1 + d_0)/3
 restore
 
-
-
-*** ===== OVERNIGHT (appended) =====
-*** Same code on the overnight sample, wedge_eur_on.csv, where the trades on
-*** the last day of the quarter are the ones priced over the quarter end.
-
-import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\wedge_eur_on.csv", clear
-
-keep if chain_intra_to_ccp > 0
-rename chain_intra_to_ccp chain
-rename wedge_intra_to_ccp wedge
-drop if abs(wedge) > 100
-
-gen date = date(business_date, "YMD")
-format date %td
-gen quarter = qofd(date)
-encode security_isin, gen(bond)
-egen ent_bond = group(entity_id security_isin tenor)
-
-preserve
-keep date
-duplicates drop
-sort date
-gen bday = _n
-tempfile bdays
-save `bdays'
-restore
-merge m:1 date using `bdays', nogenerate
-
-bysort quarter: egen last_q = max(date)
-bysort quarter: egen qe_bday = max(cond(date == last_q & day(date) >= 28 & month(date) != 12, bday, .))
-bysort quarter: egen first_bday = min(bday)
-gen k = bday - qe_bday
-replace k = bday - first_bday + 1 if bday - first_bday <= 2 & inlist(month(dofq(quarter)), 4, 7, 10) & quarter > qofd(mdy(7, 4, 2021))
-keep if k >= -19 & k <= 3
-gen event = quarter
-replace event = quarter - 1 if k > 0
-
-foreach j in 4 3 2 1 {
-    gen d_m`j' = k == -`j'
-}
-gen d_0 = k == 0
-foreach j in 1 2 3 {
-    gen d_p`j' = k == `j'
-}
-
-preserve
-keep date k event d_*
-duplicates drop
-tempfile dk
-save `dk'
-restore
-
-reghdfe wedge d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3 [aw = chain], absorb(ent_bond event) vce(cluster date)
-lincom (d_m2 + d_m1 + d_0)/3
-
-preserve
-collapse (sum) chain, by(entity_id date)
-fillin entity_id date
-replace chain = 0 if _fillin
-bysort entity_id: egen first = min(cond(chain > 0, date, .))
-bysort entity_id: egen final = max(cond(chain > 0, date, .))
-keep if date >= first & date <= final
-merge m:1 date using `dk', nogenerate
-bysort entity_id event: egen base = mean(cond(k <= -5, chain, .))
-gen chain_n = chain / base
-egen ent_event = group(entity_id event)
-
-reghdfe chain_n d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3, absorb(ent_event) vce(cluster date)
-lincom (d_m2 + d_m1 + d_0)/3
-restore
 
 
 log close

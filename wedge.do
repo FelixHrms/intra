@@ -66,6 +66,22 @@ summarize at_ccp [aw = chain]
 
 reghdfe rate_intra rate_ccp [aw = chain], absorb(ent_bond date) vce(cluster bond)
 
+* Lagged pass-through. If the internal leg mirrors the cleared leg with a
+* delay, the business day lags pick up what the same day misses and the
+* coefficients should sum to about one.
+preserve
+keep date
+duplicates drop
+sort date
+gen bday = _n
+tempfile bdays
+save `bdays'
+restore
+merge m:1 date using `bdays', nogenerate
+xtset ent_bond bday
+reghdfe rate_intra rate_ccp L.rate_ccp L2.rate_ccp [aw = chain], absorb(ent_bond date) vce(cluster bond)
+lincom rate_ccp + L.rate_ccp + L2.rate_ccp
+
 
 
 *** ===== OVERNIGHT (appended) =====

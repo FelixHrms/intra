@@ -2,16 +2,16 @@
       name:  <unnamed>
        log:  C:\\Users\\hermesf\\Projects\\Intragroup\\wedge.log
   log type:  text
- opened on:   9 Sep 2026, 10:59:52
+ opened on:   9 Sep 2026, 11:22:22
 
 . 
 . *** WEDGE
-. *** Internal price of the chain for euro area subsidiaries of foreign groups.
-. *** Rows are subsidiary by bond by day by tenor bucket, from wedge.ipynb.
-. *** wedge_intra_to_ccp is the cleared lending rate minus the intragroup
-. *** borrowing rate (bond goes out to the affiliate), wedge_ccp_to_intra is the
-. *** intragroup lending rate minus the cleared borrowing rate (bond comes in).
-. *** Both in basis points, positive when the subsidiary keeps a margin.
+. *** Internal price of the chain. The euro area entity lends cash in the CCP,
+. *** sources the bond, and borrows cash intragroup from the non-euro area
+. *** entity, passing the bond on. The wedge is the cleared lending rate minus
+. *** the intragroup borrowing rate, in basis points, positive when the euro
+. *** area entity keeps a margin. Rows are entity by bond by day by tenor
+. *** bucket, from wedge.ipynb. Everything is weighted by matched chain volume.
 . 
 . clear all
 
@@ -20,6 +20,25 @@
 . import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\wedge_eur.csv", clear
 (encoding automatically selected: ISO-8859-2)
 (34 vars, 2,943,238 obs)
+
+. 
+. * The paper's chain direction only
+. keep if chain_intra_to_ccp > 0
+(2,352,819 observations deleted)
+
+. rename chain_intra_to_ccp chain
+
+. rename wedge_intra_to_ccp wedge
+
+. rename cleared_lending_rate rate_ccp
+
+. rename intra_borrowing_rate rate_intra
+
+. 
+. * Trim. A transfer price more than 100 bp away from the same bond, same day,
+. * same tenor cleared rate is a reporting error, not a price.
+. drop if abs(wedge) > 100
+(23,478 observations deleted)
 
 . 
 . * Date and panel ids
@@ -40,462 +59,125 @@
 . * Entities and groups behind the wedge, per year
 . preserve
 
-. egen tag_entity = tag(year entity_id) if wedge_intra_to_ccp < . | wedge_ccp_to_intra < .
+. egen tag_entity = tag(year entity_id)
 
-. egen tag_group = tag(year group_id) if wedge_intra_to_ccp < . | wedge_ccp_to_intra < .
+. egen tag_group = tag(year group_id)
 
-. collapse (sum) entities = tag_entity groups = tag_group (count) cells_in = wedge_intra_to_ccp cells_out = wedge_ccp_to_intra, by(year)
+. collapse (sum) entities = tag_entity groups = tag_group (count) cells = wedge (sum) volume = chain, by(year)
 
 . list, clean
 
-       year   entities   groups   cells_in   cells_~t  
-  1.   2021         13       12      41848      28865  
-  2.   2022         14       13      97302      71354  
-  3.   2023         15       14     129376     101289  
-  4.   2024         14       13     209493     162863  
-  5.   2025         14       13     112400      93237  
+       year   entities   groups    cells     volume  
+  1.   2021         12       11    30533   4030.284  
+  2.   2022         14       13    93250   12320.54  
+  3.   2023         14       13   125883   9335.578  
+  4.   2024         14       13   206433   14762.16  
+  5.   2025         14       13   110842   9898.468  
 
 . restore
-
-. 
-. * Groups running a chain in the same bond-day
-. tab n_groups if wedge_intra_to_ccp < .
-
-   n_groups |      Freq.     Percent        Cum.
-------------+-----------------------------------
-          1 |     87,934       14.89       14.89
-          2 |    150,777       25.54       40.43
-          3 |    156,101       26.44       66.87
-          4 |    112,606       19.07       85.94
-          5 |     58,867        9.97       95.91
-          6 |     20,516        3.47       99.39
-          7 |      3,473        0.59       99.98
-          8 |        113        0.02       99.99
-          9 |         32        0.01      100.00
-------------+-----------------------------------
-      Total |    590,419      100.00
 
 . 
 . 
 . *** DESCRIPTIVES
 . 
-. * Wedge by direction, unweighted and weighted by matched volume
-. summarize wedge_intra_to_ccp wedge_ccp_to_intra carry, detail
+. * Wedge, overall, by tenor bucket, by year
+. summarize wedge [aw = chain], detail
 
-                     wedge_intra_to_ccp
+                            wedge
 -------------------------------------------------------------
       Percentiles      Smallest
- 1%         -114           -436
- 5%     -30.3329           -436
-10%     -16.3326      -407.0978       Obs             590,419
-25%           -4      -403.5325       Sum of wgt.     590,419
+ 1%     -33.0438           -100
+ 5%        -13.7           -100
+10%      -7.0423           -100       Obs             566,941
+25%       -.2598           -100       Sum of wgt.  50,347.024
 
-50%        .9752                      Mean           .3555738
-                        Largest       Std. dev.      38.34082
-75%            4       462.9995
-90%      11.6051            463       Variance       1470.019
-95%      23.9374        463.002       Skewness       4.175253
-99%     158.1604       463.9989       Kurtosis       47.21299
+50%       1.9378                      Mean           1.689198
+                        Largest       Std. dev.      11.50477
+75%       3.9747            100
+90%       7.8426            100       Variance       132.3598
+95%       15.304            100       Skewness       .5016555
+99%       42.747            100       Kurtosis       22.30374
 
-                     wedge_ccp_to_intra
--------------------------------------------------------------
-      Percentiles      Smallest
- 1%    -373.5006           -461
- 5%          -42           -461
-10%     -11.7817       -455.615       Obs             457,608
-25%      -3.9116      -451.8979       Sum of wgt.     457,608
-
-50%       -.5952                      Mean          -8.021988
-                        Largest       Std. dev.      58.49911
-75%       3.4011       372.9354
-90%      14.0468            380       Variance       3422.146
-95%      22.3592       387.9788       Skewness      -5.149876
-99%           72            395       Kurtosis        35.0353
-
-                            carry
--------------------------------------------------------------
-      Percentiles      Smallest
- 1%    -179.5897      -451.8979
- 5%          -34           -451
-10%    -14.19485           -450       Obs             934,960
-25%      -3.7746           -450       Sum of wgt.     934,960
-
-50%        .1689                      Mean          -3.316554
-                        Largest       Std. dev.      45.69313
-75%       3.7978       462.9995
-90%      11.9674            463       Variance       2087.863
-95%           22        463.002       Skewness      -3.082236
-99%      108.424       463.9989       Kurtosis       47.11848
-
-. summarize wedge_intra_to_ccp [aw = chain_intra_to_ccp], detail
-
-                     wedge_intra_to_ccp
--------------------------------------------------------------
-      Percentiles      Smallest
- 1%     -51.8428           -436
- 5%     -14.8538           -436
-10%      -7.6049      -407.0978       Obs             590,419
-25%       -.2928      -403.5325       Sum of wgt.  51,098.368
-
-50%       1.9467                      Mean           2.634532
-                        Largest       Std. dev.      25.91295
-75%       4.0019       462.9995
-90%       8.4447            463       Variance       671.4808
-95%      17.8377        463.002       Skewness       6.215011
-99%      81.5321       463.9989       Kurtosis       92.24692
-
-. summarize wedge_ccp_to_intra [aw = chain_ccp_to_intra], detail
-
-                     wedge_ccp_to_intra
--------------------------------------------------------------
-      Percentiles      Smallest
- 1%    -162.7135           -461
- 5%     -18.2494           -461
-10%      -7.4778       -455.615       Obs             457,608
-25%      -3.8888      -451.8979       Sum of wgt.  37,973.984
-
-50%      -1.5226                      Mean          -4.179289
-                        Largest       Std. dev.      33.72934
-75%        .8644       372.9354
-90%       9.1853            380       Variance       1137.668
-95%      14.6267       387.9788       Skewness      -7.438372
-99%      37.4178            395       Kurtosis       82.87448
-
-. 
-. * By tenor bucket and by year
-. bysort tenor: summarize wedge_intra_to_ccp wedge_ccp_to_intra
+. bysort tenor: summarize wedge [aw = chain]
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 -> tenor = short
 
-    Variable |        Obs        Mean    Std. dev.       Min        Max
--------------+---------------------------------------------------------
-wedge_intr~p |    549,288    .0932664    37.80088       -436   463.9989
-wedge_ccp_~a |    435,872    -8.50153    59.01426       -461        395
+    Variable |     Obs      Weight        Mean   Std. dev.       Min        Max
+-------------+-----------------------------------------------------------------
+       wedge | 526,908  46049.4635     1.79143   10.93191       -100        100
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 -> tenor = term
 
-    Variable |        Obs        Mean    Std. dev.       Min        Max
--------------+---------------------------------------------------------
-wedge_intr~p |     41,131    3.858584    44.78745       -302        403
-wedge_ccp_~a |     21,736    1.594273    45.94798       -399        303
+    Variable |     Obs      Weight        Mean   Std. dev.       Min        Max
+-------------+-----------------------------------------------------------------
+       wedge |  40,033  4297.56076    .5937598    16.3945        -99    99.9376
 
 
-. tabstat wedge_intra_to_ccp wedge_ccp_to_intra, by(year) statistics(mean p50 n)
+. tabstat wedge [aw = chain], by(year) statistics(mean p25 p50 p75 n)
 
-Summary statistics: Mean, p50, N
+Summary for variables: wedge
 Group variable: year 
 
-    year |  wedge_~p  wedge_~a
----------+--------------------
-    2021 |  -32.1159  6.756258
-         |         0   -1.9693
-         |     41848     28865
----------+--------------------
-    2022 |  -1.90237 -2.316108
-         |    1.7425  -2.50175
-         |     97302     71354
----------+--------------------
-    2023 |  7.874429 -18.65489
-         |    1.7956   -2.4235
-         |    129376    101289
----------+--------------------
-    2024 |  3.131463 -9.238383
-         |     .9405         0
-         |    209493    162863
----------+--------------------
-    2025 |  .5715868 -3.287918
-         |    .10835     .1772
-         |    112400     93237
----------+--------------------
-   Total |  .3555738 -8.021988
-         |     .9752    -.5952
-         |    590419    457608
-------------------------------
+    year |      Mean       p25       p50       p75         N
+---------+--------------------------------------------------
+    2021 |  1.459599    1.0605    2.4452    3.4474     30533
+    2022 |  2.686744     .2804    2.6872    4.4247     93250
+    2023 |  3.056804    -.1075    2.4876    5.0192    125883
+    2024 |  .9076782    -.5572    1.3875    3.6581    206433
+    2025 |  .4167355   -1.4754     .5905    3.2306    110842
+---------+--------------------------------------------------
+   Total |  1.689198    -.2598    1.9378    3.9747    566941
+------------------------------------------------------------
 
 . 
-. * Pricing convention of the internal leg. Share of cells within half a basis
-. * point of the own cleared rate, of the market cleared rate, and of ESTR.
-. gen at_own_in = abs(wedge_intra_to_ccp) < 0.5 if chain_intra_to_ccp > 0
-(2,352,819 missing values generated)
+. * Share of volume where the internal leg is priced at the own cleared rate
+. gen at_ccp = abs(wedge) < 0.5
 
-. gen at_market_in = abs(intra_borrowing_rate - market_rate)*100 < 0.5 if chain_intra_to_ccp > 0 & market_rate < .
-(2,352,819 missing values generated)
+. summarize at_ccp [aw = chain]
 
-. gen at_estr_in = abs(intra_borrowing_rate - estr)*100 < 0.5 if chain_intra_to_ccp > 0 & estr < .
-(2,358,256 missing values generated)
-
-. gen at_own_out = abs(wedge_ccp_to_intra) < 0.5 if chain_ccp_to_intra > 0
-(2,485,630 missing values generated)
-
-. gen at_market_out = abs(intra_lending_rate - market_rate)*100 < 0.5 if chain_ccp_to_intra > 0 & market_rate < .
-(2,485,630 missing values generated)
-
-. gen at_estr_out = abs(intra_lending_rate - estr)*100 < 0.5 if chain_ccp_to_intra > 0 & estr < .
-(2,489,511 missing values generated)
-
-. summarize at_own_in at_market_in at_estr_in at_own_out at_market_out at_estr_out
-
-    Variable |        Obs        Mean    Std. dev.       Min        Max
--------------+---------------------------------------------------------
-   at_own_in |    590,419    .0975799     .296746          0          1
-at_market_in |    590,419    .0798179    .2710113          0          1
-  at_estr_in |    584,982    .0440646    .2052389          0          1
-  at_own_out |    457,608    .1001993    .3002659          0          1
-at_market_~t |    457,608    .1016132    .3021393          0          1
--------------+---------------------------------------------------------
- at_estr_out |    453,727    .0371258    .1890704          0          1
-
-. 
-. * Haircut and maturity on the two legs of each direction
-. summarize cleared_lending_haircut intra_borrowing_haircut cleared_lending_maturity intra_borrowing_maturity if chain_intra_to_ccp > 0
-
-    Variable |        Obs        Mean    Std. dev.       Min        Max
--------------+---------------------------------------------------------
-cleared_le~t |    590,419    .0004371    .0297113     -5.287        5.4
-intra_borr~t |    590,419    -.137345    1.339159        -25         45
-cleared_le~y |    501,457    4.961362    15.31437   .8333333        262
-intra_borr~y |    458,445    6.139909    34.32112          0       1044
-
-. summarize cleared_borrowing_haircut intra_lending_haircut cleared_borrowing_maturity intra_lending_maturity if chain_ccp_to_intra > 0
-
-    Variable |        Obs        Mean    Std. dev.       Min        Max
--------------+---------------------------------------------------------
-cleared_bo~t |    457,567   -.0007403    .0890988    -34.455        2.5
-intra_lend~t |    457,608   -.2692297     1.38914         -6         25
-cleared_bo~y |    384,946    3.380125    12.59308          1        261
-intra_lend~y |    349,911    3.581306    14.70809          0       1011
+    Variable |     Obs      Weight        Mean   Std. dev.       Min        Max
+-------------+-----------------------------------------------------------------
+      at_ccp | 566,941  50347.0243    .1225795   .3279542          0          1
 
 . 
 . 
 . *** PASS-THROUGH
-. *** Internal rate on the external rate, within entity-bond-tenor and date.
-. *** A slope of one means the internal leg tracks the external leg, below one
-. *** means the subsidiary keeps part of the movement. Rates in percent.
+. *** Internal rate on the own cleared rate, within entity-bond-tenor and date.
+. *** A slope of one means the internal leg tracks the cleared leg, below one
+. *** means specialness is only partly passed on and the margin shrinks when
+. *** the bond is special. Rates in percent.
 . 
-. reghdfe intra_borrowing_rate cleared_lending_rate if chain_intra_to_ccp > 0, absorb(ent_bond date) vce(cluster bond)
-(dropped 555 singleton observations)
-(MWFE estimator converged in 9 iterations)
-
-HDFE Linear regression                            Number of obs   =    589,864
-Absorbing 2 HDFE groups                           F(   1,   1173) =     317.82
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.9746
-                                                  Adj R-squared   =     0.9743
-                                                  Within R-sq.    =     0.0923
-Number of clusters (bond)    =      1,174         Root MSE        =     0.2568
-
-                                       (Std. err. adjusted for 1,174 clusters in bond)
---------------------------------------------------------------------------------------
-                     |               Robust
-intra_borrowing_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
----------------------+----------------------------------------------------------------
-cleared_lending_rate |   .5834984   .0327302    17.83   0.000      .519282    .6477147
-               _cons |   .9996526    .078839    12.68   0.000     .8449714    1.154334
---------------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-    ent_bond |      5897        5897           0    *|
-        date |      1026           1        1025     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-. reghdfe intra_borrowing_rate market_rate if chain_intra_to_ccp > 0, absorb(ent_bond date) vce(cluster bond)
-(dropped 555 singleton observations)
-(MWFE estimator converged in 9 iterations)
-
-HDFE Linear regression                            Number of obs   =    589,864
-Absorbing 2 HDFE groups                           F(   1,   1173) =     334.99
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.9737
-                                                  Adj R-squared   =     0.9734
-                                                  Within R-sq.    =     0.0583
-Number of clusters (bond)    =      1,174         Root MSE        =     0.2616
-
-                               (Std. err. adjusted for 1,174 clusters in bond)
-------------------------------------------------------------------------------
-             |               Robust
-intra_borr~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
- market_rate |   .6861041   .0374862    18.30   0.000     .6125566    .7596516
-       _cons |   .7480913   .0905359     8.26   0.000      .570461    .9257216
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-    ent_bond |      5897        5897           0    *|
-        date |      1026           1        1025     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-. reghdfe intra_lending_rate cleared_borrowing_rate if chain_ccp_to_intra > 0, absorb(ent_bond date) vce(cluster bond)
-(dropped 272 singleton observations)
+. reghdfe rate_intra rate_ccp [aw = chain], absorb(ent_bond date) vce(cluster bond)
+(dropped 559 singleton observations)
 (MWFE estimator converged in 10 iterations)
 
-HDFE Linear regression                            Number of obs   =    457,336
-Absorbing 2 HDFE groups                           F(   1,   1140) =      35.44
+HDFE Linear regression                            Number of obs   =    566,382
+Absorbing 2 HDFE groups                           F(   1,   1129) =    1074.79
 Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.9488
-                                                  Adj R-squared   =     0.9482
-                                                  Within R-sq.    =     0.0059
-Number of clusters (bond)    =      1,141         Root MSE        =     0.3694
+                                                  R-squared       =     0.9974
+                                                  Adj R-squared   =     0.9974
+                                                  Within R-sq.    =     0.5785
+Number of clusters (bond)    =      1,130         Root MSE        =     0.0903
 
-                                         (Std. err. adjusted for 1,141 clusters in bond)
-----------------------------------------------------------------------------------------
-                       |               Robust
-    intra_lending_rate | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
------------------------+----------------------------------------------------------------
-cleared_borrowing_rate |   .2598088   .0436439     5.95   0.000     .1741773    .3454402
-                 _cons |    1.75925   .1084655    16.22   0.000     1.546435    1.972064
-----------------------------------------------------------------------------------------
+                               (Std. err. adjusted for 1,130 clusters in bond)
+------------------------------------------------------------------------------
+             |               Robust
+  rate_intra | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+    rate_ccp |    .799002   .0243717    32.78   0.000     .7511831    .8468208
+       _cons |   .3926684   .0496616     7.91   0.000      .295229    .4901079
+------------------------------------------------------------------------------
 
 Absorbed degrees of freedom:
 -----------------------------------------------------+
  Absorbed FE | Categories  - Redundant  = Num. Coefs |
 -------------+---------------------------------------|
-    ent_bond |      5046        5046           0    *|
+    ent_bond |      5793        5793           0    *|
         date |      1026           1        1025     |
 -----------------------------------------------------+
 * = FE nested within cluster; treated as redundant for DoF computation
-
-. reghdfe intra_lending_rate market_rate if chain_ccp_to_intra > 0, absorb(ent_bond date) vce(cluster bond)
-(dropped 272 singleton observations)
-(MWFE estimator converged in 10 iterations)
-
-HDFE Linear regression                            Number of obs   =    457,336
-Absorbing 2 HDFE groups                           F(   1,   1140) =      54.05
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.9490
-                                                  Adj R-squared   =     0.9483
-                                                  Within R-sq.    =     0.0086
-Number of clusters (bond)    =      1,141         Root MSE        =     0.3689
-
-                               (Std. err. adjusted for 1,141 clusters in bond)
-------------------------------------------------------------------------------
-             |               Robust
-intra_lend~e | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
- market_rate |   .3979358   .0541281     7.35   0.000      .291734    .5041376
-       _cons |   1.415686   .1345598    10.52   0.000     1.151674    1.679699
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-    ent_bond |      5046        5046           0    *|
-        date |      1026           1        1025     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-. 
-. 
-. *** WEDGE AND SPECIALNESS
-. *** Does the margin widen when the bond is special. Both in basis points.
-. 
-. reghdfe wedge_intra_to_ccp special, absorb(ent_bond date) vce(cluster bond)
-(dropped 563 singleton observations)
-(MWFE estimator converged in 9 iterations)
-
-HDFE Linear regression                            Number of obs   =    584,419
-Absorbing 2 HDFE groups                           F(   1,   1173) =     152.11
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.5415
-                                                  Adj R-squared   =     0.5360
-                                                  Within R-sq.    =     0.0157
-Number of clusters (bond)    =      1,174         Root MSE        =    26.1550
-
-                               (Std. err. adjusted for 1,174 clusters in bond)
-------------------------------------------------------------------------------
-             |               Robust
-wedge_intr~p | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-     special |  -.3498464   .0283659   -12.33   0.000    -.4054999   -.2941929
-       _cons |    1.36961    .081731    16.76   0.000     1.209254    1.529965
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-    ent_bond |      5889        5889           0    *|
-        date |      1017           1        1016     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-. reghdfe wedge_ccp_to_intra special, absorb(ent_bond date) vce(cluster bond)
-(dropped 272 singleton observations)
-(MWFE estimator converged in 10 iterations)
-
-HDFE Linear regression                            Number of obs   =    453,455
-Absorbing 2 HDFE groups                           F(   1,   1140) =      90.20
-Statistics robust to heteroskedasticity           Prob > F        =     0.0000
-                                                  R-squared       =     0.5924
-                                                  Adj R-squared   =     0.5869
-                                                  Within R-sq.    =     0.0143
-Number of clusters (bond)    =      1,141         Root MSE        =    37.5924
-
-                               (Std. err. adjusted for 1,141 clusters in bond)
-------------------------------------------------------------------------------
-             |               Robust
-wedge_ccp_~a | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
--------------+----------------------------------------------------------------
-     special |   .5281394   .0556082     9.50   0.000     .4190335    .6372452
-       _cons |  -8.533235    .051285  -166.39   0.000    -8.633859   -8.432611
-------------------------------------------------------------------------------
-
-Absorbed degrees of freedom:
------------------------------------------------------+
- Absorbed FE | Categories  - Redundant  = Num. Coefs |
--------------+---------------------------------------|
-    ent_bond |      5046        5046           0    *|
-        date |      1017           1        1016     |
------------------------------------------------------+
-* = FE nested within cluster; treated as redundant for DoF computation
-
-. 
-. 
-. *** COVERAGE
-. *** Chain volume with a rate in this file against the matched chain volume of
-. *** the pricing table, which uses all trades, at the bond-day level.
-. 
-. preserve
-
-. collapse (sum) chain_rated = chain_intra_to_ccp, by(business_date security_isin)
-
-. tempfile rated
-
-. save `rated'
-file C:\Users\hermesf\AppData\Local\Temp\ST_6b70_000003.tmp saved as .dta format
-
-. import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\intra_cleared_matched.csv", clear
-(encoding automatically selected: ISO-8859-2)
-(14 vars, 539,653 obs)
-
-. merge 1:1 business_date security_isin using `rated', keep(match) nogenerate
-
-    Result                      Number of obs
-    -----------------------------------------
-    Not matched                             0
-    Matched                           533,240  
-    -----------------------------------------
-
-. collapse (sum) chain_rated intra_m
-
-. gen coverage = chain_rated / intra_m
-
-. list, clean
-
-       chain_~d    intra_m   coverage  
-  1.   51098.37   68000.95   .7514361  
-
-. restore
 
 . 
 . 
@@ -503,5 +185,5 @@ file C:\Users\hermesf\AppData\Local\Temp\ST_6b70_000003.tmp saved as .dta format
       name:  <unnamed>
        log:  C:\\Users\\hermesf\\Projects\\Intragroup\\wedge.log
   log type:  text
- closed on:   9 Sep 2026, 11:01:24
+ closed on:   9 Sep 2026, 11:22:47
 -------------------------------------------------------------------------------------------------------------------------------------------------

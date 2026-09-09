@@ -2,12 +2,15 @@ log using "C:\\Users\\hermesf\\Projects\\Intragroup\\quarter_end.log", replace t
 
 *** QUARTER END
 *** Supply shifter. The euro area entity's leverage ratio is measured on the
-*** last day of the quarter, so its balance sheet is dear on the last business
-*** day of the quarter while hedge fund demand for a specific bond is not.
-*** Price and quantity of the crossing on that day, year end separately, other
-*** month ends as a placebo. Generic cleared activity in the same bonds is the
-*** benchmark. Input is Data\wedge_eur.csv from wedge.ipynb, paper direction
-*** only, and Data\intra_cleared_matched.csv from market_impact.ipynb.
+*** last day of the quarter, so its balance sheet is dear around the last
+*** business day of March, June and September while hedge fund demand for a
+*** specific bond is not. Event window in business days around the quarter
+*** end. Day 0 is the last business day, negative days before, days 1 to 3
+*** the first business days of the next quarter, days -19 to -5 are the
+*** reference. December is excluded, year end is a common shock. Price is
+*** the wedge, quantity is the entity's chain volume across bonds relative
+*** to its own reference window. Input is Data\wedge_eur.csv, paper
+*** direction only.
 
 clear all
 
@@ -22,29 +25,61 @@ drop if abs(wedge) > 100
 * Date and panel ids
 gen date = date(business_date, "YMD")
 format date %td
-gen month = mofd(date)
 gen quarter = qofd(date)
 encode security_isin, gen(bond)
 egen ent_bond = group(entity_id security_isin tenor)
 
-* Last business day of the quarter, year end separately, other month ends as placebo
+* Business day index from the dates in the data
+preserve
+keep date
+duplicates drop
+sort date
+gen bday = _n
+tempfile bdays
+save `bdays'
+restore
+merge m:1 date using `bdays', nogenerate
+
+* Days to the quarter end and the event each day belongs to
 bysort quarter: egen last_q = max(date)
-bysort month: egen last_m = max(date)
-gen qe = date == last_q & day(date) >= 28 & month(date) != 12
-gen ye = date == last_q & day(date) >= 28 & month(date) == 12
-gen me = date == last_m & day(date) >= 28 & qe == 0 & ye == 0
+bysort quarter: egen qe_bday = max(cond(date == last_q & day(date) >= 28 & month(date) != 12, bday, .))
+bysort quarter: egen first_bday = min(bday)
+gen k = bday - qe_bday
+replace k = bday - first_bday + 1 if bday - first_bday <= 2 & inlist(month(dofq(quarter)), 4, 7, 10) & quarter > qofd(mdy(7, 4, 2021))
+keep if k >= -19 & k <= 3
+gen event = quarter
+replace event = quarter - 1 if k > 0
+
+* Event dummies, reference is days -19 to -5
+foreach j in 4 3 2 1 {
+    gen d_m`j' = k == -`j'
+}
+gen d_0 = k == 0
+foreach j in 1 2 3 {
+    gen d_p`j' = k == `j'
+}
+
+* Date table for the quantity panel
+preserve
+keep date k event d_*
+duplicates drop
+tempfile dk
+save `dk'
+restore
 
 
 *** PRICE
-*** Wedge on the last day of the quarter, within entity-bond-tenor and month,
-*** weighted by matched volume. Basis points.
+*** Wedge by day to the quarter end, within entity-bond-tenor and event,
+*** weighted by matched volume. Basis points. Last three days averaged below.
 
-reghdfe wedge qe ye me [aw = chain], absorb(ent_bond month) vce(cluster date)
+reghdfe wedge d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3 [aw = chain], absorb(ent_bond event) vce(cluster date)
+lincom (d_m2 + d_m1 + d_0)/3
 
 
 *** QUANTITY
 *** Daily chain volume of the euro area entity summed across bonds, zeros
-*** filled in between its first and last active day. Billions, then logs.
+*** filled, divided by the entity's own mean over the reference days of the
+*** event. Coefficients are fractions of normal volume.
 
 preserve
 collapse (sum) chain, by(entity_id date)
@@ -53,52 +88,20 @@ replace chain = 0 if _fillin
 bysort entity_id: egen first = min(cond(chain > 0, date, .))
 bysort entity_id: egen final = max(cond(chain > 0, date, .))
 keep if date >= first & date <= final
-gen month = mofd(date)
-gen quarter = qofd(date)
-bysort quarter: egen last_q = max(date)
-bysort month: egen last_m = max(date)
-gen qe = date == last_q & day(date) >= 28 & month(date) != 12
-gen ye = date == last_q & day(date) >= 28 & month(date) == 12
-gen me = date == last_m & day(date) >= 28 & qe == 0 & ye == 0
-encode entity_id, gen(ent)
-gen lchain = log(chain)
+merge m:1 date using `dk', nogenerate
+bysort entity_id event: egen base = mean(cond(k <= -5, chain, .))
+gen chain_n = chain / base
+egen ent_event = group(entity_id event)
 
-summarize chain
-reghdfe chain qe ye me, absorb(ent month) vce(cluster date)
-reghdfe lchain qe ye me, absorb(ent month) vce(cluster date)
-restore
-
-
-*** BENCHMARK
-*** Bond-day level, all bonds active in the cleared market. bank_bench is
-*** cleared volume of banks with no chain or hedge fund activity in the bond
-*** that day, intra_m is the matched chain volume of the pricing table.
-*** Billions. Means reported to scale the coefficients.
-
-preserve
-import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\intra_cleared_matched.csv", clear
-gen date = date(business_date, "YMD")
-format date %td
-gen month = mofd(date)
-gen quarter = qofd(date)
-encode security_isin, gen(bond)
-bysort quarter: egen last_q = max(date)
-bysort month: egen last_m = max(date)
-gen qe = date == last_q & day(date) >= 28 & month(date) != 12
-gen ye = date == last_q & day(date) >= 28 & month(date) == 12
-gen me = date == last_m & day(date) >= 28 & qe == 0 & ye == 0
-
-summarize bank_bench intra_m
-reghdfe bank_bench qe ye me, absorb(bond month) vce(cluster date)
-reghdfe intra_m qe ye me, absorb(bond month) vce(cluster date)
+reghdfe chain_n d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3, absorb(ent_event) vce(cluster date)
+lincom (d_m2 + d_m1 + d_0)/3
 restore
 
 
 
 *** ===== OVERNIGHT (appended) =====
-*** Same price and quantity blocks on the overnight sample, wedge_eur_on.csv,
-*** where the trades on the last day of the quarter are the ones priced over
-*** the quarter end.
+*** Same code on the overnight sample, wedge_eur_on.csv, where the trades on
+*** the last day of the quarter are the ones priced over the quarter end.
 
 import delimited "C:\\Users\\hermesf\\Projects\\Intragroup\\Data\\wedge_eur_on.csv", clear
 
@@ -109,18 +112,46 @@ drop if abs(wedge) > 100
 
 gen date = date(business_date, "YMD")
 format date %td
-gen month = mofd(date)
 gen quarter = qofd(date)
 encode security_isin, gen(bond)
 egen ent_bond = group(entity_id security_isin tenor)
 
-bysort quarter: egen last_q = max(date)
-bysort month: egen last_m = max(date)
-gen qe = date == last_q & day(date) >= 28 & month(date) != 12
-gen ye = date == last_q & day(date) >= 28 & month(date) == 12
-gen me = date == last_m & day(date) >= 28 & qe == 0 & ye == 0
+preserve
+keep date
+duplicates drop
+sort date
+gen bday = _n
+tempfile bdays
+save `bdays'
+restore
+merge m:1 date using `bdays', nogenerate
 
-reghdfe wedge qe ye me [aw = chain], absorb(ent_bond month) vce(cluster date)
+bysort quarter: egen last_q = max(date)
+bysort quarter: egen qe_bday = max(cond(date == last_q & day(date) >= 28 & month(date) != 12, bday, .))
+bysort quarter: egen first_bday = min(bday)
+gen k = bday - qe_bday
+replace k = bday - first_bday + 1 if bday - first_bday <= 2 & inlist(month(dofq(quarter)), 4, 7, 10) & quarter > qofd(mdy(7, 4, 2021))
+keep if k >= -19 & k <= 3
+gen event = quarter
+replace event = quarter - 1 if k > 0
+
+foreach j in 4 3 2 1 {
+    gen d_m`j' = k == -`j'
+}
+gen d_0 = k == 0
+foreach j in 1 2 3 {
+    gen d_p`j' = k == `j'
+}
+
+preserve
+keep date k event d_*
+duplicates drop
+tempfile dk
+save `dk'
+restore
+
+reghdfe wedge d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3 [aw = chain], absorb(ent_bond event) vce(cluster date)
+lincom (d_m2 + d_m1 + d_0)/3
 
 preserve
 collapse (sum) chain, by(entity_id date)
@@ -129,19 +160,13 @@ replace chain = 0 if _fillin
 bysort entity_id: egen first = min(cond(chain > 0, date, .))
 bysort entity_id: egen final = max(cond(chain > 0, date, .))
 keep if date >= first & date <= final
-gen month = mofd(date)
-gen quarter = qofd(date)
-bysort quarter: egen last_q = max(date)
-bysort month: egen last_m = max(date)
-gen qe = date == last_q & day(date) >= 28 & month(date) != 12
-gen ye = date == last_q & day(date) >= 28 & month(date) == 12
-gen me = date == last_m & day(date) >= 28 & qe == 0 & ye == 0
-encode entity_id, gen(ent)
-gen lchain = log(chain)
+merge m:1 date using `dk', nogenerate
+bysort entity_id event: egen base = mean(cond(k <= -5, chain, .))
+gen chain_n = chain / base
+egen ent_event = group(entity_id event)
 
-summarize chain
-reghdfe chain qe ye me, absorb(ent month) vce(cluster date)
-reghdfe lchain qe ye me, absorb(ent month) vce(cluster date)
+reghdfe chain_n d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3, absorb(ent_event) vce(cluster date)
+lincom (d_m2 + d_m1 + d_0)/3
 restore
 
 

@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  C:\\Users\\hermesf\\Projects\\Intragroup\\wedge.log
   log type:  text
- opened on:   9 Sep 2026, 12:00:52
+ opened on:   9 Sep 2026, 14:54:45
 
 . 
 . *** WEDGE
@@ -183,6 +183,89 @@ Absorbed degrees of freedom:
 * = FE nested within cluster; treated as redundant for DoF computation
 
 . 
+. * Lagged pass-through. If the internal leg mirrors the cleared leg with a
+. * delay, the business day lags pick up what the same day misses and the
+. * coefficients should sum to about one.
+. preserve
+
+. keep date
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(565,915 observations deleted)
+
+. sort date
+
+. gen bday = _n
+
+. tempfile bdays
+
+. save `bdays'
+file C:\Users\hermesf\AppData\Local\Temp\ST_6b70_000003.tmp saved as .dta format
+
+. restore
+
+. merge m:1 date using `bdays', nogenerate
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                             0
+    Matched                           566,941  
+    -----------------------------------------
+
+. xtset ent_bond bday
+
+Panel variable: ent_bond (unbalanced)
+ Time variable: bday, 1 to 1026, but with gaps
+         Delta: 1 unit
+
+. reghdfe rate_intra rate_ccp L.rate_ccp L2.rate_ccp [aw = chain], absorb(ent_bond date) vce(cluster bond)
+(dropped 316 singleton observations)
+(MWFE estimator converged in 11 iterations)
+
+HDFE Linear regression                            Number of obs   =    402,495
+Absorbing 2 HDFE groups                           F(   3,   1013) =     481.30
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.9981
+                                                  Adj R-squared   =     0.9980
+                                                  Within R-sq.    =     0.6492
+Number of clusters (bond)    =      1,014         Root MSE        =     0.0795
+
+                               (Std. err. adjusted for 1,014 clusters in bond)
+------------------------------------------------------------------------------
+             |               Robust
+  rate_intra | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+    rate_ccp |
+         --. |   .2960988   .0176583    16.77   0.000     .2614477    .3307499
+         L1. |   .3326431   .0225412    14.76   0.000     .2884103     .376876
+         L2. |   .2217708   .0214531    10.34   0.000     .1796731    .2638685
+             |
+       _cons |   .2773024   .0446123     6.22   0.000     .1897594    .3648454
+------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+-----------------------------------------------------+
+ Absorbed FE | Categories  - Redundant  = Num. Coefs |
+-------------+---------------------------------------|
+    ent_bond |      4158        4158           0    *|
+        date |      1024           1        1023     |
+-----------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+. lincom rate_ccp + L.rate_ccp + L2.rate_ccp
+
+ ( 1)  rate_ccp + L.rate_ccp + L2.rate_ccp = 0
+
+------------------------------------------------------------------------------
+  rate_intra | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         (1) |   .8505127   .0227097    37.45   0.000     .8059493    .8950762
+------------------------------------------------------------------------------
+
+. 
 . 
 . 
 . *** ===== OVERNIGHT (appended) =====
@@ -321,5 +404,5 @@ Absorbed degrees of freedom:
       name:  <unnamed>
        log:  C:\\Users\\hermesf\\Projects\\Intragroup\\wedge.log
   log type:  text
- closed on:   9 Sep 2026, 12:01:43
+ closed on:   9 Sep 2026, 14:55:31
 -------------------------------------------------------------------------------------------------------------------------------------------------

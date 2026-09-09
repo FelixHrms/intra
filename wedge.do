@@ -5,8 +5,8 @@ log using "C:\\Users\\hermesf\\Projects\\Intragroup\\wedge.log", replace text
 *** sources the bond, and borrows cash intragroup from the non-euro area
 *** entity, passing the bond on. The wedge is the cleared lending rate minus
 *** the intragroup borrowing rate, in basis points, positive when the euro
-*** area entity keeps a margin. Rows are entity by bond by day by tenor
-*** bucket, from wedge.ipynb. Everything is weighted by matched chain volume.
+*** area entity keeps a margin. Rows are entity by bond by day, overnight
+*** trades only, from wedge.ipynb. Everything is weighted by matched volume.
 
 clear all
 
@@ -20,8 +20,8 @@ rename wedge_intra_to_ccp wedge
 rename cleared_lending_rate rate_ccp
 rename intra_borrowing_rate rate_intra
 
-* Trim. A transfer price more than 100 bp away from the same bond, same day,
-* same tenor cleared rate is a reporting error, not a price.
+* Trim. A transfer price more than 100 bp away from the same bond, same day
+* overnight cleared rate is a reporting error, not a price.
 drop if abs(wedge) > 100
 
 * Date and panel ids
@@ -29,7 +29,7 @@ gen date = date(business_date, "YMD")
 format date %td
 gen year = year(date)
 encode security_isin, gen(bond)
-egen ent_bond = group(entity_id security_isin tenor)
+egen ent_bond = group(entity_id security_isin)
 
 
 *** SAMPLE
@@ -45,9 +45,8 @@ restore
 
 *** DESCRIPTIVES
 
-* Wedge, overall, by tenor bucket, by year
+* Wedge, overall and by year
 summarize wedge [aw = chain], detail
-bysort tenor: summarize wedge [aw = chain]
 tabstat wedge [aw = chain], by(year) statistics(mean p25 p50 p75 n)
 
 * Share of volume where the internal leg is priced at the own cleared rate
@@ -56,7 +55,7 @@ summarize at_ccp [aw = chain]
 
 
 *** PASS-THROUGH
-*** Internal rate on the own cleared rate, within entity-bond-tenor and date.
+*** Internal rate on the own cleared rate, within entity-bond and date.
 *** A slope of one means the internal leg tracks the cleared leg, below one
 *** means specialness is only partly passed on and the margin shrinks when
 *** the bond is special. Rates in percent.

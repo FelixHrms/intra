@@ -126,17 +126,20 @@ restore
 
 *** FIGURE 3
 *** The two legs relative to ESTR by business day to the quarter end, 2021 to
-*** 2024, each as the change from its own mean over days -10 to -5, so both
-*** start at zero and up means the rate is lower than normal. The wedge is the
-*** internal line minus the cleared line. Window dressing by the group moves
-*** the internal leg on day 0, a lag moves it on days +1 and +2.
+*** 2024. Each cell's leg is taken as the change from that cell's own mean
+*** over days -10 to -5 and then averaged, so composition across days does
+*** not move the lines. Both start at zero and up means the rate is lower
+*** than normal. The wedge is the internal line minus the cleared line.
+*** Window dressing by the group moves the internal leg on day 0, a lag
+*** moves it on days +1 and +2.
 
 preserve
-collapse (mean) spec_ccp spec_intra if k >= -10 & jump3 == 0 & year < 2025 [aw = chain], by(k)
-egen ref_ccp = mean(cond(k <= -5, spec_ccp, .))
-egen ref_intra = mean(cond(k <= -5, spec_intra, .))
+keep if k >= -10 & jump3 == 0 & year < 2025
+bysort ent_bond event: egen ref_ccp = mean(cond(k <= -5, spec_ccp, .))
+bysort ent_bond event: egen ref_intra = mean(cond(k <= -5, spec_intra, .))
 gen dccp = spec_ccp - ref_ccp
 gen dintra = spec_intra - ref_intra
+collapse (mean) dccp dintra [aw = chain], by(k)
 twoway (connected dccp k, msize(small)) ///
        (connected dintra k, msize(small) lpattern(dash)), ///
     xline(0, lcolor(gs10)) yline(0, lcolor(black) lwidth(thin)) ///
@@ -283,17 +286,20 @@ restore
 
 *** FIGURE 3
 *** The two legs relative to ESTR by business day to the quarter end, 2021 to
-*** 2024, each as the change from its own mean over days -10 to -5, so both
-*** start at zero and up means the rate is lower than normal. The wedge is the
-*** internal line minus the cleared line. Window dressing by the group moves
-*** the internal leg on day 0, a lag moves it on days +1 and +2.
+*** 2024. Each cell's leg is taken as the change from that cell's own mean
+*** over days -10 to -5 and then averaged, so composition across days does
+*** not move the lines. Both start at zero and up means the rate is lower
+*** than normal. The wedge is the internal line minus the cleared line.
+*** Window dressing by the group moves the internal leg on day 0, a lag
+*** moves it on days +1 and +2.
 
 preserve
-collapse (mean) spec_ccp spec_intra if k >= -10 & jump3 == 0 & year < 2025 [aw = chain], by(k)
-egen ref_ccp = mean(cond(k <= -5, spec_ccp, .))
-egen ref_intra = mean(cond(k <= -5, spec_intra, .))
+keep if k >= -10 & jump3 == 0 & year < 2025
+bysort ent_bond event: egen ref_ccp = mean(cond(k <= -5, spec_ccp, .))
+bysort ent_bond event: egen ref_intra = mean(cond(k <= -5, spec_intra, .))
 gen dccp = spec_ccp - ref_ccp
 gen dintra = spec_intra - ref_intra
+collapse (mean) dccp dintra [aw = chain], by(k)
 twoway (connected dccp k, msize(small)) ///
        (connected dintra k, msize(small) lpattern(dash)), ///
     xline(0, lcolor(gs10)) yline(0, lcolor(black) lwidth(thin)) ///

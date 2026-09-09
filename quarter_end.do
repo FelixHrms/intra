@@ -94,6 +94,7 @@ bysort entity_id event: egen base = mean(cond(k <= -5, chain, .))
 gen chain_n = chain / base
 egen ent_event = group(entity_id event)
 
+tabstat chain_n [aw = base], by(k) statistics(mean n)
 reghdfe chain_n d_m4 d_m3 d_m2 d_m1 d_0 d_p1 d_p2 d_p3 [aw = base], absorb(ent_event) vce(cluster date)
 lincom (d_m2 + d_m1 + d_0)/3
 restore

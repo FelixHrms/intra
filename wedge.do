@@ -66,6 +66,23 @@ summarize at_ccp [aw = chain]
 
 reghdfe rate_intra rate_ccp [aw = chain], absorb(ent_bond date) vce(cluster bond)
 
+* Timing. Daily changes within entity-bond-tenor, today's change in the
+* cleared rate and the changes of the two business days before. A weight
+* near one on yesterday's change means the internal leg is dated one day
+* later, weights spread over the days mean a gradual repricing.
+preserve
+keep date
+duplicates drop
+sort date
+gen bday = _n
+tempfile bdays
+save `bdays'
+restore
+merge m:1 date using `bdays', nogenerate
+xtset ent_bond bday
+reghdfe D.rate_intra D.rate_ccp LD.rate_ccp L2D.rate_ccp [aw = chain], noabsorb vce(cluster date)
+lincom D.rate_ccp + LD.rate_ccp + L2D.rate_ccp
+
 
 
 *** ===== OVERNIGHT (appended) =====
@@ -103,6 +120,23 @@ gen at_ccp = abs(wedge) < 0.5
 summarize at_ccp [aw = chain]
 
 reghdfe rate_intra rate_ccp [aw = chain], absorb(ent_bond date) vce(cluster bond)
+
+* Timing. Daily changes within entity-bond-tenor, today's change in the
+* cleared rate and the changes of the two business days before. A weight
+* near one on yesterday's change means the internal leg is dated one day
+* later, weights spread over the days mean a gradual repricing.
+preserve
+keep date
+duplicates drop
+sort date
+gen bday = _n
+tempfile bdays
+save `bdays'
+restore
+merge m:1 date using `bdays', nogenerate
+xtset ent_bond bday
+reghdfe D.rate_intra D.rate_ccp LD.rate_ccp L2D.rate_ccp [aw = chain], noabsorb vce(cluster date)
+lincom D.rate_ccp + LD.rate_ccp + L2D.rate_ccp
 
 
 log close

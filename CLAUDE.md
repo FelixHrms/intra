@@ -14,4 +14,4 @@ New notebooks follow the style of the existing ones. One markdown header per sec
 
 ## Confidentiality rule for publications
 
-Any aggregated or transformed value that is shown in a table or figure must be based on at least three entities, and no single entity may account for more than 85 percent of the displayed value. `confidentiality.ipynb` checks this for every table and figure in `intra_paper.tex`.
+Any aggregated or transformed value that is shown in a table or figure must be based on at least three entities (distinct LEIs), and no single entity may account for more than 85 percent of the displayed value. `confidentiality.ipynb` checks this for every table and figure in `intra_paper.tex`.
